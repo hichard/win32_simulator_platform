@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Simulator_Platform" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Simulator_Platform" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="RT-Thread" />
+					<Add directory="RT-Thread/board" />
+					<Add directory="RT-Thread/include" />
+					<Add directory="RT-Thread/components/dfs/include" />
+					<Add directory="RT-Thread/components/drivers" />
+					<Add directory="RT-Thread/components/drivers/include" />
+					<Add directory="RT-Thread/components/finsh" />
+					<Add directory="User" />
+				</Compiler>
+				<Linker>
+					<Add option="-T RT-Thread\board\mingw.ld" />
+					<Add library="D:/soft_install/app_soft/CodeBlocks/MinGW/lib/libwinmm.a" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Simulator_Platform" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="RT-Thread/board/board_init.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/rtconfig.h">
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/uart_console.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/uart_console.h">
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Lock.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Mail.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Mutex.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Mutex.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Queue.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Semaphore.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Semaphore.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Thread.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/Thread.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/crt.cpp">
+			<Option compile="0" />
+			<Option link="0" />
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/crt.h">
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/cplusplus/crt_init.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/rtc/alarm.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/rtc/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/rtc/rtc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/rtc/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/rtc/soft_rtc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/rtc/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/serial/serial.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/serial/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/src/completion.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/src/dataqueue.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/src/pipe.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/src/ringbuffer.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/src/waitqueue.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/src/workqueue.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/driver/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/cmd.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_api.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_compiler.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_error.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_error.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_heap.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_heap.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_init.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_node.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_node.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_ops.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_ops.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_parser.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_parser.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_token.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_token.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_var.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_var.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_vm.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/finsh_vm.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/msh.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/msh.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/msh_cmd.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/msh_file.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/shell.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/shell.h">
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/finsh/symbol.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_dirent.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_errno.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_fcntl.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_fdset.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_ioctl.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_signal.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/libc/libc_stat.h">
+			<Option virtualFolder="RT-Thread/include/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtdbg.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtdebug.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtdef.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rthw.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtlibc.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtm.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtservice.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/include/rtthread.h">
+			<Option virtualFolder="RT-Thread/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/clock.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/components.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/device.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/idle.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/ipc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/irq.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/kservice.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/mem.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/memheap.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/mempool.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/module.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/module.h">
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/object.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/scheduler.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/signal.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/slab.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/thread.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/kernel/timer.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/kernel/" />
+		</Unit>
+		<Unit filename="RT-Thread/libcpu/win32/cpu_port.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/libcpu/" />
+		</Unit>
+		<Unit filename="RT-Thread/libcpu/win32/cpu_port.h">
+			<Option virtualFolder="RT-Thread/libcpu/" />
+		</Unit>
+		<Unit filename="RT-Thread/packages/netutils/ping/ping.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/packages/netutils/ping/" />
+		</Unit>
+		<Unit filename="User/DeviceInit.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/DeviceInit.h">
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/Main.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/Main.h">
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/includes.h">
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
