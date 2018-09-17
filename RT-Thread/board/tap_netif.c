@@ -770,12 +770,12 @@ void tap_netif_hw_init(void)
 	rt_sem_init(&sem_lock, "eth_lock", 1, RT_IPC_FLAG_FIFO);
 
 	tap_netif_device.dev_addr[0] = 0x00;
-	tap_netif_device.dev_addr[1] = 0x60;
-	tap_netif_device.dev_addr[2] = 0x37;
+	tap_netif_device.dev_addr[1] = 0xFF;
+	tap_netif_device.dev_addr[2] = 0x33;
 	/* set mac address: (only for test) */
-	tap_netif_device.dev_addr[3] = 0x12;
-	tap_netif_device.dev_addr[4] = 0x34;
-	tap_netif_device.dev_addr[5] = 0x56;
+	tap_netif_device.dev_addr[3] = 0x39;
+	tap_netif_device.dev_addr[4] = 0x55;
+	tap_netif_device.dev_addr[5] = 0x82;
 
 	tap_netif_device.parent.parent.init		= tap_netif_init;
 	tap_netif_device.parent.parent.open		= tap_netif_open;
