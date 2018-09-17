@@ -57,7 +57,7 @@ typedef rt_uint32_t	mem_ptr_t;
 #define S32_F "ld"
 #define X32_F "lx"
 
-#ifdef RT_USING_NEWLIB
+#if defined(RT_USING_NEWLIB) && !defined(_WIN32)
 #include <errno.h>
 /* some errno not defined in newlib */
 #define ENSRNOTFOUND 163  /* Domain name not found */
@@ -93,9 +93,13 @@ typedef rt_uint32_t	mem_ptr_t;
 #define PACK_STRUCT_USE_INCLUDES
 #elif defined(__GNUC__)     /* GNU GCC Compiler */
 #define PACK_STRUCT_FIELD(x) x
-#define PACK_STRUCT_STRUCT __attribute__((packed))
 #define PACK_STRUCT_BEGIN
 #define PACK_STRUCT_END
+#if defined(_WIN32)
+#define PACK_STRUCT_STRUCT __attribute__((gcc_struct, packed))
+#else
+#define PACK_STRUCT_STRUCT __attribute__((packed))
+#endif
 #elif defined(_MSC_VER)
 #define PACK_STRUCT_FIELD(x) x
 #define PACK_STRUCT_STRUCT

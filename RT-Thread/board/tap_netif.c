@@ -30,7 +30,8 @@
 #include <windows.h>
 #include <winioctl.h>
 #include <rtthread.h>
-#include <netif/ethernetif.h>
+#include <lwip_if.h>
+#include <lwip_ethernet.h>
 
 #define MAX_ADDR_LEN 6
 #define TAP_IFNAME	"RT-net"
@@ -660,7 +661,7 @@ static rt_err_t tap_netif_init(rt_device_t dev)
 	tap_netif_device.handle = handle;
 
 	/* create recv thread */
-	tid = rt_thread_create("tap", tap_win32_thread_entry, RT_NULL, 
+	tid = rt_thread_create("tap", tap_win32_thread_entry, RT_NULL,
 		2048, RT_THREAD_PRIORITY_MAX - 1, 10);
 	if (tid != RT_NULL)
 	{

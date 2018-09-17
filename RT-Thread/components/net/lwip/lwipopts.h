@@ -65,7 +65,7 @@
 #define MEM_LIBC_MALLOC                 1
 #define MEMP_MEM_MALLOC                 1
 #else
-#define MEM_LIBC_MALLOC                 0    
+#define MEM_LIBC_MALLOC                 0
 #define MEMP_MEM_MALLOC                 0
 #endif
 
@@ -188,7 +188,7 @@
 //#define LWIP_MIB2_CALLBACKS             0
 
 /*********************************************************************************************************
-** IGMP参数配置——Multicast options 
+** IGMP参数配置——Multicast options
 *********************************************************************************************************/
 //#define LWIP_MULTICAST_TX_OPTIONS       ((LWIP_IGMP || LWIP_IPV6_MLD) && (LWIP_UDP || LWIP_RAW))
 
@@ -292,22 +292,22 @@
 /*********************************************************************************************************
 ** PPP options
 *********************************************************************************************************/
-#define PPP_SUPPORT                     1
-
-//#define PPPOE_SUPPORT                   0
-//#define PPPOL2TP_SUPPORT                0
-#define PPPOS_SUPPORT                   PPP_SUPPORT
-
-//#define PPP_INPROC_IRQ_SAFE             0
-
-#define PAP_SUPPORT                     1
-#define CHAP_SUPPORT                    1
+//#define PPP_SUPPORT                     1
+//
+////#define PPPOE_SUPPORT                   0
+////#define PPPOL2TP_SUPPORT                0
+//#define PPPOS_SUPPORT                   PPP_SUPPORT
+//
+////#define PPP_INPROC_IRQ_SAFE             0
+//
+//#define PAP_SUPPORT                     1
+//#define CHAP_SUPPORT                    1
 
 /*********************************************************************************************************
 ** Thread options
 *********************************************************************************************************/
 #define TCPIP_THREAD_NAME              "tcpip"
-#define TCPIP_THREAD_STACKSIZE          3072
+#define TCPIP_THREAD_STACKSIZE          4096
 #define TCPIP_THREAD_PRIO               1
 #define TCPIP_MBOX_SIZE                 32
 #define LWIP_TCPIP_THREAD_ALIVE()
@@ -592,10 +592,10 @@
 #define LWIP_NAPTPT                  0
 #if (LWIP_NAPTPT > 0)
 #define NAPTPT_ICMP_TTL              15
-#define NAPTPT_UDP_TTL               60*3          
-#define NAPTPT_SYN_TTL               15          
-#define NAPTPT_RST_TTL               15           
-#define NAPTPT_TCP_TTL               60*3    
+#define NAPTPT_UDP_TTL               60*3
+#define NAPTPT_SYN_TTL               15
+#define NAPTPT_RST_TTL               15
+#define NAPTPT_TCP_TTL               60*3
 #endif
 
 

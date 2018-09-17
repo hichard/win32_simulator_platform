@@ -209,23 +209,23 @@ extern "C" {
 /*********************************************************************************************************
 **  网络相关配置
 *********************************************************************************************************/
-///* SECTION: lwip, a lighwight TCP/IP protocol stack */
-//#define RT_USING_LWIP
-///* LwIP uses RT-Thread Memory Management */
-////#define RT_LWIP_USING_RT_MEM
-///* the number of simulatenously active TCP connections*/
-////#define RT_LWIP_TCP_PCB_NUM	5
+/* SECTION: lwip, a lighwight TCP/IP protocol stack */
+#define RT_USING_LWIP
+/* LwIP uses RT-Thread Memory Management */
+//#define RT_LWIP_USING_RT_MEM
+/* the number of simulatenously active TCP connections*/
+//#define RT_LWIP_TCP_PCB_NUM	5
 
 /*********************************************************************************************************
 **  以太网支持
 *********************************************************************************************************/
-//#define RT_USE_ETHERNET
-//#define RT_LWIP_NO_TX_THREAD
-////#define RT_LWIP_NO_RX_THREAD
-///* ethernet if thread options */
-//#define RT_LWIP_ETHTHREAD_PRIORITY		2
-//#define RT_LWIP_ETHTHREAD_MBOX_SIZE		16
-//#define RT_LWIP_ETHTHREAD_STACKSIZE		512
+#define RT_USE_ETHERNET
+#define RT_LWIP_NO_TX_THREAD
+//#define RT_LWIP_NO_RX_THREAD
+/* ethernet if thread options */
+#define RT_LWIP_ETHTHREAD_PRIORITY		2
+#define RT_LWIP_ETHTHREAD_MBOX_SIZE		16
+#define RT_LWIP_ETHTHREAD_STACKSIZE		512
 
 /*********************************************************************************************************
 **  6LoWPAN支持
