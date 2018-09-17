@@ -41,6 +41,7 @@
 int win_main(void)
 {
   tap_netif_hw_init();
+  if_set_dhcp("e0", 1);
   return 0;
 }
 
