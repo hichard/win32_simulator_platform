@@ -41,7 +41,13 @@
 int win_main(void)
 {
   tap_netif_hw_init();
+#if 0
   if_set_dhcp("e0", 1);
+#else
+  set_if("e0","192.168.3.135","192.168.3.1","255.255.255.0");
+  set_dns(0, "223.5.5.5");
+  //set_dns(1, ip);
+#endif
   return 0;
 }
 
