@@ -28,7 +28,6 @@
 #ifdef RT_USING_DFS
 
 #include <dfs_fs.h>
-
 /*********************************************************************************************************
   全局变量定义
 *********************************************************************************************************/
@@ -46,29 +45,31 @@
 *********************************************************************************************************/
 void mnt_init(void)
 {
-//    extern int dfs_win32_init(void);
-//    extern rt_err_t rt_win_sharedir_init(const char *name);
-//
-//    dfs_win32_init();
-//    rt_win_sharedir_init("wshare");
-//
-//    if (dfs_mount("wshare", "/", "wdir", 0, 0) == 0)
-//    {
-//        rt_kprintf("File System on root initialized!\n");
-//    }
-//    else
-//    {
-//        rt_kprintf("File System on root initialization failed!\n");
-//    }
-//
-//    if (dfs_mount("sd0", "/sd", "elm", 0, 0) == 0)
-//    {
-//        rt_kprintf("File System on sd initialized!\n");
-//    }
-//    else
-//    {
-//        rt_kprintf("File System on sd initialization failed!\n");
-//    }
+    extern int dfs_win32_init(void);
+    extern rt_err_t rt_win_sharedir_init(const char *name);
+
+    dfs_win32_init();
+    rt_win_sharedir_init("wshare");
+    rt_hw_sdcard_init();
+
+    if (dfs_mount("wshare", "/", "wdir", 0, 0) == 0)
+    {
+        rt_kprintf("File System on root initialized!\n");
+    }
+    else
+    {
+        rt_kprintf("File System on root initialization failed!\n");
+    }
+
+    if (dfs_mount("sd0", "/sd", "elm", 0, 0) == 0)
+    {
+        rt_kprintf("File System on sd initialized!\n");
+    }
+    else
+    {
+        //dfs_mkfs("elm", "sd0");
+        rt_kprintf("File System on sd initialization failed!\n");
+    }
 }
 #endif   // end of RT_USING_DFS
 /*********************************************************************************************************

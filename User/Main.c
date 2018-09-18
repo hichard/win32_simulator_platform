@@ -40,7 +40,15 @@
 *********************************************************************************************************/
 int win_main(void)
 {
-  tap_netif_hw_init();
+  /*
+  ** Step 1, 挂载文件系统
+  */
+   mnt_init();
+
+  /*
+  ** Step 2, 网络初始化
+  */
+   tap_netif_hw_init();
 #if 1
   if_set_dhcp("e0", 1);
 #else
@@ -48,6 +56,7 @@ int win_main(void)
   set_dns(0, "223.5.5.5");
   //set_dns(1, ip);
 #endif
+
   return 0;
 }
 

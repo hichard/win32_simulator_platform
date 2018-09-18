@@ -174,46 +174,45 @@ extern "C" {
 
 #elif defined(__GNUC__)
 #define RT_USING_NOLIBC
-//#define _UWIN
-//#ifdef __MINGW32__
-//#define _NO_OLDNAMES
-//#endif // __MINGW32__
+#ifdef __MINGW32__
+#define _UWIN
+#endif // __MINGW32__
 #endif /* end of _MSC_VER */
 
 /*********************************************************************************************************
 **  文件系统相关配置
 *********************************************************************************************************/
-///* SECTION: device filesystem */
-//#define RT_USING_DFS
-//
-////#define RT_USING_DFS_DEVFS
-//
-//  /* Use Using working directory */
-//#define DFS_USING_WORKDIR
-//
-//  /* the max number of mounted filesystem */
-//#define DFS_FILESYSTEMS_MAX             1
-//  /* the max number of opened files       */
-//#define DFS_FD_MAX                      8
+/* SECTION: device filesystem */
+#define RT_USING_DFS
+
+//#define RT_USING_DFS_DEVFS
+
+  /* Use Using working directory */
+#define DFS_USING_WORKDIR
+
+  /* the max number of mounted filesystem */
+#define DFS_FILESYSTEMS_MAX             4
+  /* the max number of opened files       */
+#define DFS_FD_MAX                      8
 
 /*********************************************************************************************************
 **  elm fat相关配置
 *********************************************************************************************************/
-//#define RT_USING_DFS_ELMFAT
-///* Use exFat, support fat8, fat16, fat32, fat64.  */
-//#define RT_DFS_ELM_USE_EXFAT
-///* Reentrancy (thread safe) of the FatFs module.  */
-//#define RT_DFS_ELM_REENTRANT
-///* Number of volumes (logical drives) to be used. */
-//#define RT_DFS_ELM_DRIVES               1
-//#define RT_DFS_ELM_USE_LFN              3
-////#define RT_DFS_ELM_LFN_UNICODE
-//#define RT_DFS_ELM_CODE_PAGE            437
-//// <bool name="RT_DFS_ELM_CODE_PAGE_FILE" description="Using OEM code page file" default="false" />
-//#define RT_DFS_ELM_CODE_PAGE_FILE
-//#define RT_DFS_ELM_MAX_LFN              128
-///* Maximum sector size to be handled. */
-//#define RT_DFS_ELM_MAX_SECTOR_SIZE      512
+#define RT_USING_DFS_ELMFAT
+/* Use exFat, support fat8, fat16, fat32, fat64.  */
+#define RT_DFS_ELM_USE_EXFAT
+/* Reentrancy (thread safe) of the FatFs module.  */
+#define RT_DFS_ELM_REENTRANT
+/* Number of volumes (logical drives) to be used. */
+#define RT_DFS_ELM_DRIVES               1
+#define RT_DFS_ELM_USE_LFN              3
+//#define RT_DFS_ELM_LFN_UNICODE
+#define RT_DFS_ELM_CODE_PAGE            437
+// <bool name="RT_DFS_ELM_CODE_PAGE_FILE" description="Using OEM code page file" default="false" />
+#define RT_DFS_ELM_CODE_PAGE_FILE
+#define RT_DFS_ELM_MAX_LFN              128
+/* Maximum sector size to be handled. */
+#define RT_DFS_ELM_MAX_SECTOR_SIZE      512
 
 /*********************************************************************************************************
 **  uffs相关配置

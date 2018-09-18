@@ -5,7 +5,7 @@
 		<Option title="Simulator_Platform" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\net\lwip\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;RT-Thread\components\net\lwip\;RT-Thread\components\net\lwip\src\core\;RT-Thread\components\net\lwip\src\core\ipv4\;RT-Thread\components\net\lwip\src\core\ipv6\;RT-Thread\components\net\lwip\src\arch\;RT-Thread\components\net\lwip\src\api\;RT-Thread\components\net\lwip\src\netif\;RT-Thread\components\driver\include\;" />
+		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\net\lwip\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;RT-Thread\components\net\lwip\;RT-Thread\components\net\lwip\src\core\;RT-Thread\components\net\lwip\src\core\ipv4\;RT-Thread\components\net\lwip\src\core\ipv6\;RT-Thread\components\net\lwip\src\arch\;RT-Thread\components\net\lwip\src\api\;RT-Thread\components\net\lwip\src\netif\;RT-Thread\components\driver\include\;RT-Thread\components\dfs\filesystems\;RT-Thread\components\dfs\include\;RT-Thread\components\dfs\src\;RT-Thread\components\dfs\filesystems\elmfat\;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/Simulator_Platform" prefix_auto="1" extension_auto="1" />
@@ -54,7 +54,26 @@
 			<Option compilerVar="CC" />
 			<Option virtualFolder="RT-Thread/board/" />
 		</Unit>
+		<Unit filename="RT-Thread/board/dfs_win32.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/nanddrv_file.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
 		<Unit filename="RT-Thread/board/rtconfig.h">
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/sd_sim.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/sst25vfxx_mtd.h">
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/sst25vfxx_mtd_sim.c">
+			<Option compilerVar="CC" />
 			<Option virtualFolder="RT-Thread/board/" />
 		</Unit>
 		<Unit filename="RT-Thread/board/tap_netif.c">
@@ -114,6 +133,75 @@
 			<Option compile="0" />
 			<Option link="0" />
 			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/dfs_elm.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/diskio.h">
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/ff.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/ff.h">
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/ffconf.h">
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/ffunicode.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/integer.h">
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/elmfat/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs_file.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs_fs.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs_poll.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs_posix.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs_private.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/include/dfs_select.h">
+			<Option virtualFolder="RT-Thread/components/dfs/include/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/src/dfs.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/src/dfs_file.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/src/dfs_fs.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/src/dfs_posix.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/src/poll.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/src/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/src/select.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/src/" />
 		</Unit>
 		<Unit filename="RT-Thread/components/drivers/include/rtdevice.h">
 			<Option virtualFolder="RT-Thread/components/driver/include/" />
@@ -614,6 +702,13 @@
 			<Option virtualFolder="User/" />
 		</Unit>
 		<Unit filename="User/DeviceInit.h">
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/FileSystemMnt.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/FileSystemMnt.h">
 			<Option virtualFolder="User/" />
 		</Unit>
 		<Unit filename="User/Main.c">

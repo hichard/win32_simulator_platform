@@ -69,6 +69,9 @@ typedef rt_uint32_t	mem_ptr_t;
 			in arch.h has been assigned to another error code. */
 #define ESHUTDOWN 180
 #endif /* __CC_ARM/__IAR_SYSTEMS_ICC__ */
+#elif defined(__MINGW32__) && defined(_WIN32)
+#define LWIP_PROVIDE_ERRNO
+int errno;
 #else
 #define LWIP_PROVIDE_ERRNO
 #endif
