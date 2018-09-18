@@ -54,9 +54,9 @@
 #define STOP_BITS_3                     2
 #define STOP_BITS_4                     3
 
-#ifdef _WIN32
-#include <windows.h>
-#else
+#ifndef _WIN32
+//#include <windows.h>
+//#else
 #define PARITY_NONE                     0
 #define PARITY_ODD                      1
 #define PARITY_EVEN                     2
@@ -118,7 +118,7 @@ struct serial_configure
 };
 
 /*
- * Serial FIFO mode 
+ * Serial FIFO mode
  */
 struct rt_serial_rx_fifo
 {
@@ -135,7 +135,7 @@ struct rt_serial_tx_fifo
     struct rt_completion completion;
 };
 
-/* 
+/*
  * Serial DMA mode
  */
 struct rt_serial_rx_dma

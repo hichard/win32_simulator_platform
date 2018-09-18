@@ -5,7 +5,7 @@
 		<Option title="Simulator_Platform" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\net\lwip\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;RT-Thread\components\net\lwip\;RT-Thread\components\net\lwip\src\core\;RT-Thread\components\net\lwip\src\core\ipv4\;RT-Thread\components\net\lwip\src\core\ipv6\;RT-Thread\components\net\lwip\src\arch\;RT-Thread\components\net\lwip\src\api\;RT-Thread\components\net\lwip\src\netif\;" />
+		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\net\lwip\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;RT-Thread\components\net\lwip\;RT-Thread\components\net\lwip\src\core\;RT-Thread\components\net\lwip\src\core\ipv4\;RT-Thread\components\net\lwip\src\core\ipv6\;RT-Thread\components\net\lwip\src\arch\;RT-Thread\components\net\lwip\src\api\;RT-Thread\components\net\lwip\src\netif\;RT-Thread\components\driver\include\;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/Simulator_Platform" prefix_auto="1" extension_auto="1" />
@@ -25,6 +25,7 @@
 					<Add directory="RT-Thread/components/net/lwip/src" />
 					<Add directory="RT-Thread/components/net/lwip/src/arch/include" />
 					<Add directory="RT-Thread/components/net/lwip/src/include" />
+					<Add directory="RT-Thread/components/net/lwip/src/include/compat/posix" />
 					<Add directory="RT-Thread/packages" />
 					<Add directory="User" />
 				</Compiler>
@@ -113,6 +114,9 @@
 			<Option compile="0" />
 			<Option link="0" />
 			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/drivers/include/rtdevice.h">
+			<Option virtualFolder="RT-Thread/components/driver/include/" />
 		</Unit>
 		<Unit filename="RT-Thread/components/drivers/rtc/alarm.c">
 			<Option compilerVar="CC" />
@@ -620,6 +624,10 @@
 			<Option virtualFolder="User/" />
 		</Unit>
 		<Unit filename="User/includes.h">
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/udp_example.c">
+			<Option compilerVar="CC" />
 			<Option virtualFolder="User/" />
 		</Unit>
 		<Extensions>
