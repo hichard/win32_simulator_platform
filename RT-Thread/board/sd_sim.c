@@ -12,7 +12,7 @@
 #endif
 
 #define SDCARD_SIM  "sd.bin"
-#define SDCARD_SIZE (16*1024*1024)  //16M
+#define SDCARD_SIZE (256*1024*1024)  // 256M
 
 struct sdcard_device
 {

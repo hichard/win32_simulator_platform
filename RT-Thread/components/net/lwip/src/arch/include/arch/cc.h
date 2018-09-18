@@ -57,7 +57,10 @@ typedef rt_uint32_t	mem_ptr_t;
 #define S32_F "ld"
 #define X32_F "lx"
 
-#if defined(RT_USING_NEWLIB) && !defined(_WIN32)
+#ifdef RT_USING_LIBC
+#if defined(__CC_ARM) || defined(__IAR_SYSTEMS_ICC__)
+#include <sys/errno.h>
+#else
 #include <errno.h>
 /* some errno not defined in newlib */
 #define ENSRNOTFOUND 163  /* Domain name not found */
@@ -65,9 +68,7 @@ typedef rt_uint32_t	mem_ptr_t;
 			180 here because the number "108" which is used
 			in arch.h has been assigned to another error code. */
 #define ESHUTDOWN 180
-#elif RT_USING_MINILIBC
-#include <errno.h>
-#define  EADDRNOTAVAIL  99  /* Cannot assign requested address */
+#endif /* __CC_ARM/__IAR_SYSTEMS_ICC__ */
 #else
 #define LWIP_PROVIDE_ERRNO
 #endif

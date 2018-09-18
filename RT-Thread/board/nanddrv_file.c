@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef RT_USING_MTD_NAND
+
 #define NAND_SIM  "nand.bin"
 
 #if 1
@@ -397,3 +399,4 @@ void nand_eraseall()
 FINSH_FUNCTION_EXPORT(nand_eraseall, erase all of block in the nand flash);
 
 #endif //RT_USING_FINSH
+#endif

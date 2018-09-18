@@ -49,7 +49,7 @@
  */
 #define FILE_PATH_MAX           256  /* the longest file path */
 
-#define WIN32_DIRDISK_ROOT  "./disk"
+#define WIN32_DIRDISK_ROOT  "./../../disk"
 
 typedef struct {
     HANDLE handle;
