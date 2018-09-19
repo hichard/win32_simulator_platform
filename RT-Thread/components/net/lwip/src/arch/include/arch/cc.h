@@ -71,7 +71,10 @@ typedef rt_uint32_t	mem_ptr_t;
 #endif /* __CC_ARM/__IAR_SYSTEMS_ICC__ */
 #elif defined(__MINGW32__) && defined(_WIN32)
 #define LWIP_PROVIDE_ERRNO
-int errno;
+#ifdef _UWIN
+_CRTIMP int* __cdecl __MINGW_NOTHROW _errno(void);
+#define	errno		(*_errno())
+#endif // _UWIN
 #else
 #define LWIP_PROVIDE_ERRNO
 #endif
