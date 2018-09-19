@@ -85,8 +85,8 @@ void wav(char* filename)
   int fd;
   struct rt_audio_buf_desc desc;
   struct FMT_BLOCK_DEF   fmt_block;
-  
-  
+
+
   //打开文件
   fd = open(filename, O_RDONLY, 0);
   if (fd >= 0)
@@ -96,7 +96,7 @@ void wav(char* filename)
     uint32_t ChunkSize;
     rt_device_t device;
     char riff_chunk[4];
-    
+
     /* wav format check */
     do
     {
@@ -107,11 +107,11 @@ void wav(char* filename)
         close(fd);
         return;
       }
-      
+
       if(strncmp(riff_chunk, "RIFF", sizeof(riff_chunk)) == 0)
       {
         struct RIFF_HEADER_DEF riff_header;
-        
+
         /* read riff header */
         len = read(fd, (void*)((uint32_t)&riff_header + sizeof(riff_chunk)),
                    sizeof(struct RIFF_HEADER_DEF) - sizeof(riff_chunk));
@@ -133,13 +133,13 @@ void wav(char* filename)
           close(fd);
           return;
         }
-        
+
         if(fmt_block.fmt_size != 16)
         {
           char tmp[2];
           read(fd, tmp, fmt_block.fmt_size - 16);
         }
-        
+
         if(fmt_block.wav_format.Channels != 2)
         {
           rt_kprintf("[err] only support stereo!\r\n");
@@ -157,7 +157,7 @@ void wav(char* filename)
         lseek(fd, ChunkSize, SEEK_CUR);
       }
     } while(1);
-    
+
     /* get data size */
     {
       rt_size_t size;
@@ -168,26 +168,26 @@ void wav(char* filename)
         close(fd);
         return;
       }
-      
+
       /* print play time */
       {
         uint32_t hour, min, sec;
-        
+
         hour = min = 0;
         sec = size / fmt_block.wav_format.AvgBytesPerSec;
-        
+
         if(sec / (60*60))
         {
           hour = sec / (60*60);
           sec -= hour * (60*60);
         }
-        
+
         if(sec / 60)
         {
           min = sec / 60;
           sec -= min * 60;
         }
-        
+
         /* dump wav info, (only in finsh) */
         if(strncmp(rt_thread_self()->name, "tshell", sizeof("tshell") -1) == 0)
         {
@@ -199,7 +199,7 @@ void wav(char* filename)
         }
       }
     } /* get data size */
-    
+
     /* open audio device and set tx done call back */
     device = rt_device_find("sound0");
     if(device == RT_NULL)
@@ -211,7 +211,7 @@ void wav(char* filename)
     //设置发送完成回调函数,让DAC数据发完时执行wav_tx_done函数释放空间.
     rt_device_set_tx_complete(device, wav_tx_done);
     rt_device_open(device, RT_DEVICE_OFLAG_WRONLY);
-    
+
     /* set samplerate */
     {
       int SamplesPerSec = fmt_block.wav_format.SamplesPerSec;
@@ -226,16 +226,16 @@ void wav(char* filename)
         rt_device_close(device);
         return;
       }
-      
+
       int BitsPerSample = fmt_block.wav_format.BitsPerSample;
       caps.main_type = AUDIO_TYPE_OUTPUT;
       caps.sub_type = AUDIO_DSP_FMT;
       caps.udata.value = BitsPerSample;
       rt_device_control(device, AUDIO_CTL_CONFIGURE, &caps);
     }
-    
+
     rt_device_control(device, AUDIO_CTL_START, filename);
-    
+
     do
     {
       rt_device_control(device, AUDIO_CTL_ALLOCBUFFER, &desc);
@@ -250,12 +250,30 @@ void wav(char* filename)
         rt_device_control(device, AUDIO_CTL_FREEBUFFER, desc.data_ptr);
       }
     } while (len > 0);
-    
+
     /* close device and file */
     rt_device_close(device);
     close(fd);
   }
 }
+
+#ifdef RT_USING_FINSH
+#include <finsh.h>
+int cmd_wav(int argc, char **argv)
+{
+    rt_device_t tid;
+
+    if (argc == 2)
+    {
+        wav(argv[1]);
+    } else {
+        rt_kprintf("bad parameter! e.g: wav /test.wav\r\n");
+    }
+
+    return 0;
+}
+FINSH_FUNCTION_EXPORT_ALIAS(cmd_wav, __cmd_wav, play wav music);
+#endif
 /*********************************************************************************************************
 END FILE
 *********************************************************************************************************/

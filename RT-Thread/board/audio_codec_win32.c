@@ -89,6 +89,16 @@ static void codec_audio_waveout_callback(
    DWORD_PTR dwParam1,
    DWORD_PTR dwParam2)
 {
+    struct codec_device *icodec = (struct codec_device *)dwInstance;
+
+    if(uMsg == WOM_DONE ) {
+       if(__g_win32_codec.hWaveOut != NULL ) {
+           waveOutUnprepareHeader(__g_win32_codec.hWaveOut,__g_win32_codec.lpWaveoutHdr,sizeof(WAVEHDR));
+           rt_audio_tx_complete(&__g_audio_device, __g_win32_codec.lpWaveoutHdr->lpData);
+           rt_free(__g_win32_codec.lpWaveoutHdr);
+           __g_win32_codec.lpWaveoutHdr = NULL;
+       }
+    }
 }
 
 /*********************************************************************************************************
@@ -217,12 +227,23 @@ static rt_err_t icodec_configure(struct rt_audio_device *audio,struct rt_audio_c
       case AUDIO_DSP_SAMPLERATE:
         {
           icodec->WaveoutFormat.nSamplesPerSec = caps->udata.value;
-          //sample_rate(icodec, icodec->SampleRate);
+          icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
+          icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
+          if(icodec->hWaveOut != NULL) {
+              waveOutOpen(&icodec->hWaveOut, (UINT)icodec->hWaveOut, &icodec->WaveoutFormat,
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION);
+          }
         }
         break;
       case AUDIO_DSP_FMT:
         {
           icodec->WaveoutFormat.wBitsPerSample= caps->udata.value;
+          icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
+          icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
+          if(icodec->hWaveOut != NULL) {
+              waveOutOpen(&icodec->hWaveOut, (UINT)icodec->hWaveOut, &icodec->WaveoutFormat,
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION);
+          }
         }
         break;
       default:
@@ -250,9 +271,17 @@ static rt_err_t icodec_configure(struct rt_audio_device *audio,struct rt_audio_c
 *********************************************************************************************************/
 static rt_err_t icodec_init(struct rt_audio_device *audio)
 {
-  //struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
+    struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
 
-  return RT_EOK;
+    icodec->WaveoutFormat.nSamplesPerSec = 44100;
+    icodec->WaveoutFormat.wBitsPerSample = 16;
+    icodec->WaveoutFormat.nChannels = 2;
+    icodec->WaveoutFormat.cbSize = 0;
+    icodec->WaveoutFormat.wFormatTag = WAVE_FORMAT_PCM;
+    icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
+    icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
+
+    return RT_EOK;
 }
 
 /*********************************************************************************************************
@@ -266,7 +295,7 @@ static rt_err_t icodec_shutdown(struct rt_audio_device *audio)
 {
   struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
 
-  waveOutClose(icodec->hWaveOut);
+  waveOutPause(icodec->hWaveOut);
   return RT_EOK;
 }
 
@@ -279,21 +308,24 @@ static rt_err_t icodec_shutdown(struct rt_audio_device *audio)
 *********************************************************************************************************/
 rt_err_t icodec_start(struct rt_audio_device *audio,int stream)
 {
-//     WAVEFORMATEX wfx;
-//
-//    wfx.wFormatTag = WAVE_FORMAT_PCM;
-//    wfx.nChannels = nChannels;
-//    wfx.nSamplesPerSec = nSamplesPerSec;
-//    wfx.wBitsPerSample = wBitsPerSample;
-//    wfx.cbSize = 0;
-//    wfx.nBlockAlign = wfx.wBitsPerSample * wfx.nChannels / 8;
-//    wfx.nAvgBytesPerSec = wfx.nChannels * wfx.nSamplesPerSec * wfx.wBitsPerSample / 8;
-//
-//    /* 'waveOutOpen' will call 'SetEvent'. */
-//    if (waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx, (DWORD_PTR)hEventPlay, 0, CALLBACK_EVENT))
-//    {
-//      return -1;
-//    }
+    struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
+
+    if(icodec->hWaveOut == NULL) {
+        if (waveOutOpen(&icodec->hWaveOut, WAVE_MAPPER, &icodec->WaveoutFormat,
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION))
+        {
+          return -1;
+        }
+    } else {
+        if (waveOutOpen(&icodec->hWaveOut, (UINT)icodec->hWaveOut, &icodec->WaveoutFormat,
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION))
+        {
+          return -1;
+        }
+    }
+
+    icodec->WaveoutVolume = 50;
+    waveout_volume_set(icodec, icodec->WaveoutVolume);
 
     return RT_EOK;
 }
@@ -379,40 +411,25 @@ static rt_size_t icodec_transmit(struct rt_audio_device *audio, const void *writ
 {
   struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
 
-//  if(writeBuf != RT_NULL)
-//  {
-//    if((DMAIsEnabled(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM))) {
-//      return 0;
-//    }
-//
-//    icodec->send_buf = (uint8_t *)writeBuf;
-//    //I2SDisable(CODEC_I2S_BASE);
-//    DMADisable(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM);
-//    DMAModeConfigSet(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM,
-//                     AUDIO_I2S_DMA_CHANNEL |
-//                       DMA_DIR_MemoryToPeripheral |
-//                         DMA_PeripheralInc_Disable |
-//                           DMA_MemoryInc_Enable |
-//                             DMA_PeripheralDataSize_HalfWord |
-//                               DMA_MemoryDataSize_HalfWord |
-//                                 DMA_Mode_Normal |
-//                                   DMA_Priority_High |
-//                                     DMA_MemoryBurst_Single |
-//                                       DMA_PeripheralBurst_Single);
-//    DMAFIFOConfigSet(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM,
-//                     DMA_FIFOMode_Disable | DMA_FIFOThreshold_Full);
-//    //DMAFlowControllerConfig(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM, DMA_FlowCtrl_Peripheral);
-//    DMAAddrSet(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM, (rt_uint32_t)writeBuf, (CODEC_I2S_BASE + SPI_DR));
-//    DMABufferSizeSet(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM, size >> 1);
-//
-//    SPI_I2S_DMAEnable(CODEC_I2S_BASE,SPI_I2S_DMA_TX);
-//    DMAIntEnable(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM, DMA_INT_CONFIG_TC/*DMA_INT_CONFIG_USUAL*/);
-//    // ¿ªÊ¼DMA´«Êä
-//    DMAEnable(AUDIO_I2S_DMA_BASE, AUDIO_I2S_DMA_STREAM);
-//    //I2SEnable(CODEC_I2S_BASE);
-//
-//    return size;
-//  }
+  if(writeBuf != RT_NULL)
+  {
+    if(icodec->lpWaveoutHdr != NULL) {
+        return 0;
+    }
+
+    icodec->lpWaveoutHdr = rt_malloc(sizeof(WAVEHDR));
+    if(icodec->lpWaveoutHdr == NULL) {
+        return 0;
+    }
+    ZeroMemory(icodec->lpWaveoutHdr, sizeof(WAVEHDR));
+    icodec->lpWaveoutHdr->dwLoops = 1;
+    icodec->lpWaveoutHdr->dwBufferLength = size;
+    icodec->lpWaveoutHdr->lpData = writeBuf;
+    waveOutPrepareHeader(icodec->hWaveOut, icodec->lpWaveoutHdr, sizeof(WAVEHDR));
+    waveOutWrite(icodec->hWaveOut, icodec->lpWaveoutHdr, sizeof(WAVEHDR));
+
+    return size;
+  }
 
   return 0;
 }
