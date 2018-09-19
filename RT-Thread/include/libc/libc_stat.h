@@ -7,7 +7,7 @@
 /* use header file of newlib */
 #include <sys/stat.h>
 
-#elif defined(_WIN32)
+#elif defined(_WIN32) && !defined(__MINGW32__)
 #include <sys/stat.h>
 
 #define S_IRWXU              00700
