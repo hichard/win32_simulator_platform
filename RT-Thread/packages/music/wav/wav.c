@@ -242,6 +242,8 @@ void wav(char* filename)
         rt_thread_delay(10);
         continue;
       }
+      static uint32_t malloc_count = 0;
+      printf("Malloc count is %u\r\n", malloc_count++);
       len = read(fd, desc.data_ptr, 4096);
       if(len > 0) {
         rt_device_write(device, 0, desc.data_ptr, len);

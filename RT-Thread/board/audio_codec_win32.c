@@ -45,7 +45,7 @@
 /*********************************************************************************************************
 ** 基本配置
 *********************************************************************************************************/
-#define WAVEOUT_HDR_NUM          4     //  播放缓冲区个数
+#define WAVEOUT_HDR_NUM          10     //  播放缓冲区个数
 
 /*********************************************************************************************************
 ** 驱动结构相关定义
@@ -58,6 +58,8 @@ struct codec_device
   /* waveout 相关，用于播放音频  */
   WAVEFORMATEX WaveoutFormat;               // 播放音频数据格式结构
   LPHWAVEOUT hWaveOut;                      // 播放设备句柄
+  CRITICAL_SECTION  waveout_critical;       // 临界区保护相关
+  HANDLE     hMutexLock;                    // 互斥锁
   //LPWAVEHDR  pWaveoutHdr;                   // 播放数据结构
   uint16_t   WaveoutNum;                    // 缓冲区使用数量
   uint8_t    WaveoutVolume;                 // 播放音量
@@ -68,7 +70,6 @@ struct codec_device
 *********************************************************************************************************/
 static struct codec_device      __g_win32_codec;
 static struct rt_audio_device   __g_audio_device;
-
 
 /*********************************************************************************************************
 ** Function name:       waveout_volume_set
@@ -111,15 +112,23 @@ static void codec_audio_waveout_callback(
     LPWAVEHDR  lpWaveoutHdr = dwParam1;
 
     if(uMsg == WOM_DONE ) {
-       if( icodec->WaveoutNum > 0) {
-          icodec->WaveoutNum--;
-       }
        if(__g_win32_codec.hWaveOut != NULL ) {
-            waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdr,sizeof(WAVEHDR));
+            if( icodec->WaveoutNum > 0) {
+                icodec->WaveoutNum--;
+            }
+               static uint32_t free_count = 0;
+           printf("Free count is %u\r\n", free_count++);
             rt_audio_tx_complete(&__g_audio_device, lpWaveoutHdr->lpData);
-            rt_free(lpWaveoutHdr);
-            printf("playing\r\n");
+            //EnterCriticalSection(&icodec->waveout_critical);
+            WaitForSingleObject(icodec->hMutexLock, INFINITE);
+            waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdr,sizeof(WAVEHDR));
+            //LeaveCriticalSection(&icodec->waveout_critical);
+            ReleaseMutex(icodec->hMutexLock);
+            free(lpWaveoutHdr);
+            printf("Free End\r\n");
        }
+    } else{
+      printf("other message\r\n");
     }
 }
 
@@ -303,6 +312,8 @@ static rt_err_t icodec_init(struct rt_audio_device *audio)
     icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
     icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
 
+    InitializeCriticalSection(&icodec->waveout_critical);
+    icodec->hMutexLock = CreateMutex(NULL,FALSE,NULL);
     return RT_EOK;
 }
 
@@ -440,20 +451,31 @@ static rt_size_t icodec_transmit(struct rt_audio_device *audio, const void *writ
          return 0;
       }
 
-      pWaveoutHdr = rt_malloc(sizeof(WAVEHDR));
+      pWaveoutHdr = malloc(sizeof(WAVEHDR));
       if(pWaveoutHdr == RT_NULL) {
          return 0;
       }
+
+      //EnterCriticalSection(&icodec->waveout_critical);
+      WaitForSingleObject(icodec->hMutexLock, INFINITE);
+      ZeroMemory(pWaveoutHdr, sizeof(WAVEHDR));
       pWaveoutHdr->dwLoops = 1;
       pWaveoutHdr->dwBufferLength = size;
       pWaveoutHdr->lpData = writeBuf;
       if(waveOutPrepareHeader(icodec->hWaveOut, pWaveoutHdr, sizeof(WAVEHDR)) !=  MMSYSERR_NOERROR ) {
-        rt_free(pWaveoutHdr);
+        //LeaveCriticalSection(&icodec->waveout_critical);
+        ReleaseMutex(icodec->hMutexLock);
+        free(pWaveoutHdr);
         return 0;
       }
-      if(waveOutWrite(icodec->hWaveOut, pWaveoutHdr, sizeof(WAVEHDR))) {
+      if(waveOutWrite(icodec->hWaveOut, pWaveoutHdr, sizeof(WAVEHDR)) !=  MMSYSERR_NOERROR ) {
+        //LeaveCriticalSection(&icodec->waveout_critical);
+        ReleaseMutex(icodec->hMutexLock);
+        free(pWaveoutHdr);
         return 0;
       }
+      //LeaveCriticalSection(&icodec->waveout_critical);
+      ReleaseMutex(icodec->hMutexLock);
 
       icodec->WaveoutNum++;
       return size;
