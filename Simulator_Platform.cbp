@@ -740,6 +740,10 @@
 		<Unit filename="User/includes.h">
 			<Option virtualFolder="User/" />
 		</Unit>
+		<Unit filename="User/music_player.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="User/" />
+		</Unit>
 		<Unit filename="User/udp_example.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="User/" />

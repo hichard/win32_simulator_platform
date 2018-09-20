@@ -43,9 +43,9 @@
 #endif
 
 /*********************************************************************************************************
-** 基本配置
+** 基本配置, 应该小于声卡框架的数据块个数
 *********************************************************************************************************/
-#define WAVEOUT_HDR_NUM          10     //  播放缓冲区个数
+#define WAVEOUT_HDR_NUM          3     //  播放缓冲区个数
 
 /*********************************************************************************************************
 ** 驱动结构相关定义
@@ -58,9 +58,8 @@ struct codec_device
   /* waveout 相关，用于播放音频  */
   WAVEFORMATEX WaveoutFormat;               // 播放音频数据格式结构
   LPHWAVEOUT hWaveOut;                      // 播放设备句柄
-  CRITICAL_SECTION  waveout_critical;       // 临界区保护相关
-  HANDLE     hMutexLock;                    // 互斥锁
-  //LPWAVEHDR  pWaveoutHdr;                   // 播放数据结构
+  DWORD      idThread;                      // 线程ID
+  HANDLE     hStartEvent;                   // thread start event
   uint16_t   WaveoutNum;                    // 缓冲区使用数量
   uint8_t    WaveoutVolume;                 // 播放音量
 };
@@ -109,26 +108,48 @@ static void codec_audio_waveout_callback(
    DWORD_PTR dwParam2)
 {
     struct codec_device *icodec = (struct codec_device *)dwInstance;
-    LPWAVEHDR  lpWaveoutHdr = dwParam1;
 
     if(uMsg == WOM_DONE ) {
-       if(__g_win32_codec.hWaveOut != NULL ) {
-            if( icodec->WaveoutNum > 0) {
-                icodec->WaveoutNum--;
+        PostThreadMessage(icodec->idThread, uMsg, icodec, dwParam1);
+    }
+}
+
+/*********************************************************************************************************
+** Function name:       wav_audio_handle_thread
+** Descriptions:        数据处理线程
+** Input parameters:    NONE
+** Output parameters:   NONE
+** Returned value:      NONE
+*********************************************************************************************************/
+DWORD WINAPI wav_audio_handle_thread(LPVOID lParam)
+{
+    MSG msg;
+    struct codec_device *icodec = lParam;
+    LPWAVEHDR lpWaveoutHdr;
+
+    PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+    SetEvent(icodec->hStartEvent);
+    for(;;)
+    {
+        if(GetMessage(&msg,0,0,0)) //get msg from message queue
+        {
+            switch(msg.message)
+            {
+            case WOM_DONE:
+                icodec = msg.wParam;
+                lpWaveoutHdr = msg.lParam;
+                waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdr,sizeof(WAVEHDR));
+                if( icodec->WaveoutNum > 0) {
+                    icodec->WaveoutNum--;
+                }
+                rt_audio_tx_complete(&__g_audio_device, lpWaveoutHdr->lpData);
+                free(lpWaveoutHdr);
+
+                break;
+            default:
+                break;
             }
-               static uint32_t free_count = 0;
-           printf("Free count is %u\r\n", free_count++);
-            rt_audio_tx_complete(&__g_audio_device, lpWaveoutHdr->lpData);
-            //EnterCriticalSection(&icodec->waveout_critical);
-            WaitForSingleObject(icodec->hMutexLock, INFINITE);
-            waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdr,sizeof(WAVEHDR));
-            //LeaveCriticalSection(&icodec->waveout_critical);
-            ReleaseMutex(icodec->hMutexLock);
-            free(lpWaveoutHdr);
-            printf("Free End\r\n");
-       }
-    } else{
-      printf("other message\r\n");
+        }
     }
 }
 
@@ -304,6 +325,7 @@ static rt_err_t icodec_init(struct rt_audio_device *audio)
 {
     struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
 
+    ZeroMemory(&icodec->WaveoutFormat,sizeof(WAVEFORMATEX));
     icodec->WaveoutFormat.nSamplesPerSec = 44100;
     icodec->WaveoutFormat.wBitsPerSample = 16;
     icodec->WaveoutFormat.nChannels = 2;
@@ -312,8 +334,10 @@ static rt_err_t icodec_init(struct rt_audio_device *audio)
     icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
     icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
 
-    InitializeCriticalSection(&icodec->waveout_critical);
-    icodec->hMutexLock = CreateMutex(NULL,FALSE,NULL);
+    icodec->hStartEvent = CreateEvent(NULL,FALSE,FALSE,NULL); // 创建信号量，用于标志接收到数据
+    CreateThread(NULL,0,wav_audio_handle_thread,icodec,0,&icodec->idThread);
+    WaitForSingleObject(icodec->hStartEvent,INFINITE);
+    CloseHandle(icodec->hStartEvent);
     return RT_EOK;
 }
 
@@ -456,26 +480,19 @@ static rt_size_t icodec_transmit(struct rt_audio_device *audio, const void *writ
          return 0;
       }
 
-      //EnterCriticalSection(&icodec->waveout_critical);
-      WaitForSingleObject(icodec->hMutexLock, INFINITE);
       ZeroMemory(pWaveoutHdr, sizeof(WAVEHDR));
-      pWaveoutHdr->dwLoops = 1;
+      pWaveoutHdr->dwLoops = 0;
       pWaveoutHdr->dwBufferLength = size;
       pWaveoutHdr->lpData = writeBuf;
       if(waveOutPrepareHeader(icodec->hWaveOut, pWaveoutHdr, sizeof(WAVEHDR)) !=  MMSYSERR_NOERROR ) {
-        //LeaveCriticalSection(&icodec->waveout_critical);
-        ReleaseMutex(icodec->hMutexLock);
         free(pWaveoutHdr);
         return 0;
       }
       if(waveOutWrite(icodec->hWaveOut, pWaveoutHdr, sizeof(WAVEHDR)) !=  MMSYSERR_NOERROR ) {
-        //LeaveCriticalSection(&icodec->waveout_critical);
-        ReleaseMutex(icodec->hMutexLock);
+        waveOutUnprepareHeader(icodec->hWaveOut, pWaveoutHdr, sizeof(WAVEHDR));
         free(pWaveoutHdr);
         return 0;
       }
-      //LeaveCriticalSection(&icodec->waveout_critical);
-      ReleaseMutex(icodec->hMutexLock);
 
       icodec->WaveoutNum++;
       return size;

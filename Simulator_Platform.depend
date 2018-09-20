@@ -3741,7 +3741,7 @@
 	<rtthread.h>
 	<rtdevice.h>
 
-1537452170 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\board\audio_codec_win32.c
+1537458378 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\board\audio_codec_win32.c
 	<stdint.h>
 	<string.h>
 	<stdio.h>
@@ -3757,10 +3757,14 @@
 	<rtdevice.h>
 	"audio_pipe.h"
 
-1537452106 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\packages\music\wav\wav.c
+1537454935 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\packages\music\wav\wav.c
 	<stdint.h>
 	<rtthread.h>
 	<dfs_posix.h>
 	<rtdevice.h>
+	<finsh.h>
+
+1537458118 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\user\music_player.c
+	<includes.h>
 	<finsh.h>
 
