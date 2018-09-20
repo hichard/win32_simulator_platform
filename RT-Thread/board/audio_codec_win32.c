@@ -32,6 +32,17 @@
 #include <windows.h>
 
 /*********************************************************************************************************
+** 调试输出宏定义
+*********************************************************************************************************/
+#define WIN32_AUDIO_DEBUG   0
+
+#if (WIN32_AUDIO_DEBUG > 0)
+#define win32_audio_debug_trace(fmt, ...)           printf(fmt, ##__VA_ARGS__)
+#else
+#define win32_audio_debug_trace(fmt, ...)
+#endif
+
+/*********************************************************************************************************
 ** 基本配置
 *********************************************************************************************************/
 #define WAVEOUT_HDR_NUM          5     //  播放缓冲区个数
@@ -56,7 +67,6 @@ struct codec_device
   /* waveout 相关，用于播放音频  */
   WAVEFORMATEX WaveoutFormat;               // 播放音频数据格式结构
   LPHWAVEOUT hWaveOut;                      // 播放设备句柄
-  CRITICAL_SECTION  waveout_critical;       // 临界区保护相关
   WAVEHDR    WaveoutHdr[WAVEOUT_HDR_NUM];   // 播放数据结构
   uint16_t   out_read_index;                // 读指针
   uint16_t   out_write_index;               // 写指针
@@ -113,12 +123,11 @@ static void codec_audio_waveout_callback(
     if(uMsg == WOM_DONE ) {
        if(__g_win32_codec.hWaveOut != NULL ) {
             if(!WAVEOUT_Buffer_Empty(icodec)) {
-                EnterCriticalSection(&icodec->waveout_critical);
                 lpWaveoutHdrTemp = &icodec->WaveoutHdr[icodec->out_read_index];
-                icodec->out_read_index = (icodec->out_read_index + 1) % WAVEOUT_HDR_NUM;
-                waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdrTemp,sizeof(WAVEHDR));
-                LeaveCriticalSection(&icodec->waveout_critical);
+                win32_audio_debug_trace("waveout read index %d\r\n", icodec->out_read_index);
                 rt_audio_tx_complete(&__g_audio_device, lpWaveoutHdrTemp->lpData);
+                waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdrTemp,sizeof(WAVEHDR));
+                icodec->out_read_index = (icodec->out_read_index + 1) % WAVEOUT_HDR_NUM;
             }
        }
     }
@@ -254,7 +263,7 @@ static rt_err_t icodec_configure(struct rt_audio_device *audio,struct rt_audio_c
           icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
           if(icodec->hWaveOut != NULL) {
               waveOutOpen(&icodec->hWaveOut, (UINT)icodec->hWaveOut, &icodec->WaveoutFormat,
-                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION);
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION | WAVE_MAPPED);
           }
         }
         break;
@@ -265,7 +274,7 @@ static rt_err_t icodec_configure(struct rt_audio_device *audio,struct rt_audio_c
           icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
           if(icodec->hWaveOut != NULL) {
               waveOutOpen(&icodec->hWaveOut, (UINT)icodec->hWaveOut, &icodec->WaveoutFormat,
-                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION);
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION | WAVE_MAPPED);
           }
         }
         break;
@@ -304,8 +313,6 @@ static rt_err_t icodec_init(struct rt_audio_device *audio)
     icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
     icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
 
-    InitializeCriticalSection(&icodec->waveout_critical);
-
     return RT_EOK;
 }
 
@@ -343,7 +350,7 @@ rt_err_t icodec_start(struct rt_audio_device *audio,int stream)
         }
     } else {
         if (waveOutOpen(&icodec->hWaveOut, (UINT)icodec->hWaveOut, &icodec->WaveoutFormat,
-                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION))
+                        (DWORD_PTR)codec_audio_waveout_callback, icodec, CALLBACK_FUNCTION | WAVE_MAPPED))
         {
           return -1;
         }
@@ -443,16 +450,15 @@ static rt_size_t icodec_transmit(struct rt_audio_device *audio, const void *writ
         return 0;
     }
 
-    EnterCriticalSection(&icodec->waveout_critical);
     lpWaveoutHdrTemp = &icodec->WaveoutHdr[icodec->out_write_index];
-    icodec->out_write_index = (icodec->out_write_index + 1) % WAVEOUT_HDR_NUM;
+    win32_audio_debug_trace("waveout write index %d\r\n", icodec->out_write_index);
     ZeroMemory(lpWaveoutHdrTemp, sizeof(WAVEHDR));
     //lpWaveoutHdrTemp->dwLoops = 1;
     lpWaveoutHdrTemp->dwBufferLength = size;
     lpWaveoutHdrTemp->lpData = writeBuf;
     waveOutPrepareHeader(icodec->hWaveOut, lpWaveoutHdrTemp, sizeof(WAVEHDR));
     waveOutWrite(icodec->hWaveOut, lpWaveoutHdrTemp, sizeof(WAVEHDR));
-    LeaveCriticalSection(&icodec->waveout_critical);
+    icodec->out_write_index = (icodec->out_write_index + 1) % WAVEOUT_HDR_NUM;
 
     return size;
   }

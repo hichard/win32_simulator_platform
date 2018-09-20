@@ -81,7 +81,6 @@ static rt_err_t wav_tx_done(rt_device_t dev, void *buffer)
 *********************************************************************************************************/
 void wav(char* filename)
 {
-  char *buf;
   int fd;
   struct rt_audio_buf_desc desc;
   struct FMT_BLOCK_DEF   fmt_block;
