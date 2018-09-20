@@ -261,8 +261,6 @@ void wav(char* filename)
 #include <finsh.h>
 int cmd_wav(int argc, char **argv)
 {
-    rt_device_t tid;
-
     if (argc == 2)
     {
         wav(argv[1]);

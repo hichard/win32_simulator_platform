@@ -30,6 +30,21 @@
 #include <rtlibc.h>
 
 #include <windows.h>
+
+/*********************************************************************************************************
+** 基本配置
+*********************************************************************************************************/
+#define WAVEOUT_HDR_NUM          5     //  播放缓冲区个数
+
+/*********************************************************************************************************
+** 定义是否允许访问数据队列的宏
+*********************************************************************************************************/
+#define WAVEOUT_Buffer_Empty(a)    \
+(((a->out_read_index) == (a->out_write_index)) ? RT_TRUE : RT_FALSE)
+
+#define WAVEOUT_Buffer_Full(a)     \
+((((a->out_write_index + 1) % WAVEOUT_HDR_NUM) == (a->out_read_index)) ? RT_TRUE : RT_FALSE)
+
 /*********************************************************************************************************
 ** 驱动结构相关定义
 *********************************************************************************************************/
@@ -39,10 +54,13 @@ struct codec_device
 
 
   /* waveout 相关，用于播放音频  */
-  WAVEFORMATEX WaveoutFormat;   // 播放音频数据格式结构
-  LPHWAVEOUT hWaveOut;          // 播放设备句柄
-  LPWAVEHDR  lpWaveoutHdr;      // 播放数据结构
-  uint8_t    WaveoutVolume;     // 播放音量
+  WAVEFORMATEX WaveoutFormat;               // 播放音频数据格式结构
+  LPHWAVEOUT hWaveOut;                      // 播放设备句柄
+  CRITICAL_SECTION  waveout_critical;       // 临界区保护相关
+  WAVEHDR    WaveoutHdr[WAVEOUT_HDR_NUM];   // 播放数据结构
+  uint16_t   out_read_index;                // 读指针
+  uint16_t   out_write_index;               // 写指针
+  uint8_t    WaveoutVolume;                 // 播放音量
 };
 
 /*********************************************************************************************************
@@ -90,13 +108,18 @@ static void codec_audio_waveout_callback(
    DWORD_PTR dwParam2)
 {
     struct codec_device *icodec = (struct codec_device *)dwInstance;
+    LPWAVEHDR  lpWaveoutHdrTemp;
 
     if(uMsg == WOM_DONE ) {
        if(__g_win32_codec.hWaveOut != NULL ) {
-           waveOutUnprepareHeader(__g_win32_codec.hWaveOut,__g_win32_codec.lpWaveoutHdr,sizeof(WAVEHDR));
-           rt_audio_tx_complete(&__g_audio_device, __g_win32_codec.lpWaveoutHdr->lpData);
-           rt_free(__g_win32_codec.lpWaveoutHdr);
-           __g_win32_codec.lpWaveoutHdr = NULL;
+            if(!WAVEOUT_Buffer_Empty(icodec)) {
+                EnterCriticalSection(&icodec->waveout_critical);
+                lpWaveoutHdrTemp = &icodec->WaveoutHdr[icodec->out_read_index];
+                icodec->out_read_index = (icodec->out_read_index + 1) % WAVEOUT_HDR_NUM;
+                waveOutUnprepareHeader(icodec->hWaveOut,lpWaveoutHdrTemp,sizeof(WAVEHDR));
+                LeaveCriticalSection(&icodec->waveout_critical);
+                rt_audio_tx_complete(&__g_audio_device, lpWaveoutHdrTemp->lpData);
+            }
        }
     }
 }
@@ -281,6 +304,8 @@ static rt_err_t icodec_init(struct rt_audio_device *audio)
     icodec->WaveoutFormat.nBlockAlign = (icodec->WaveoutFormat.wBitsPerSample * icodec->WaveoutFormat.nChannels) >> 3;
     icodec->WaveoutFormat.nAvgBytesPerSec = icodec->WaveoutFormat.nBlockAlign * icodec->WaveoutFormat.nSamplesPerSec;
 
+    InitializeCriticalSection(&icodec->waveout_critical);
+
     return RT_EOK;
 }
 
@@ -410,23 +435,24 @@ static rt_err_t icodec_control (struct rt_audio_device *audio, int cmd, void *ar
 static rt_size_t icodec_transmit(struct rt_audio_device *audio, const void *writeBuf, void *readBuf, rt_size_t size)
 {
   struct codec_device *icodec = (struct codec_device *)audio->parent.user_data;
+  LPWAVEHDR  lpWaveoutHdrTemp;
 
   if(writeBuf != RT_NULL)
   {
-    if(icodec->lpWaveoutHdr != NULL) {
+    if(WAVEOUT_Buffer_Full(icodec)) {
         return 0;
     }
 
-    icodec->lpWaveoutHdr = rt_malloc(sizeof(WAVEHDR));
-    if(icodec->lpWaveoutHdr == NULL) {
-        return 0;
-    }
-    ZeroMemory(icodec->lpWaveoutHdr, sizeof(WAVEHDR));
-    icodec->lpWaveoutHdr->dwLoops = 1;
-    icodec->lpWaveoutHdr->dwBufferLength = size;
-    icodec->lpWaveoutHdr->lpData = writeBuf;
-    waveOutPrepareHeader(icodec->hWaveOut, icodec->lpWaveoutHdr, sizeof(WAVEHDR));
-    waveOutWrite(icodec->hWaveOut, icodec->lpWaveoutHdr, sizeof(WAVEHDR));
+    EnterCriticalSection(&icodec->waveout_critical);
+    lpWaveoutHdrTemp = &icodec->WaveoutHdr[icodec->out_write_index];
+    icodec->out_write_index = (icodec->out_write_index + 1) % WAVEOUT_HDR_NUM;
+    ZeroMemory(lpWaveoutHdrTemp, sizeof(WAVEHDR));
+    //lpWaveoutHdrTemp->dwLoops = 1;
+    lpWaveoutHdrTemp->dwBufferLength = size;
+    lpWaveoutHdrTemp->lpData = writeBuf;
+    waveOutPrepareHeader(icodec->hWaveOut, lpWaveoutHdrTemp, sizeof(WAVEHDR));
+    waveOutWrite(icodec->hWaveOut, lpWaveoutHdrTemp, sizeof(WAVEHDR));
+    LeaveCriticalSection(&icodec->waveout_critical);
 
     return size;
   }
