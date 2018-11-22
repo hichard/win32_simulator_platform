@@ -2475,7 +2475,7 @@
 1537523848 e:\rt_thread\win32_simulator_platform\win32_simulator_platform\user\main.h
 	<rtthread.h>
 
-1542793166 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\user\main.c
+1542858732 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\user\main.c
 	"includes.h"
 
 1537523848 e:\rt_thread\win32_simulator_platform\win32_simulator_platform\user\includes.h
@@ -3799,7 +3799,7 @@
 1541648250 e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\components\drivers\include\drivers\mtdnand.h
 	"mtd.h"
 
-1542767442 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\board\ttyuart_win32.c
+1542859351 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\rt-thread\board\ttyuart_win32.c
 	<stdint.h>
 	<string.h>
 	<stdio.h>
@@ -3866,4 +3866,10 @@
 	<rtthread.h>
 	"libc.h"
 	<dfs_posix.h>
+
+1542858703 source:e:\rt_thread\win32_simulator_platform\win32_simulator_platform\user\tty_uart_example.c
+	<stdio.h>
+	<rthw.h>
+	<rtthread.h>
+	<rtdevice.h>
 
