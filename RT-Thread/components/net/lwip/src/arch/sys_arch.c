@@ -1,34 +1,34 @@
 /*
- * Copyright (c) 2001-2003 Swedish Institute of Computer Science.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
- *
- * This file is part of the lwIP TCP/IP stack.
- *
- * Author: Adam Dunkels <adam@sics.se>
- *
- */
+* Copyright (c) 2001-2003 Swedish Institute of Computer Science.
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without modification,
+* are permitted provided that the following conditions are met:
+*
+* 1. Redistributions of source code must retain the above copyright notice,
+*    this list of conditions and the following disclaimer.
+* 2. Redistributions in binary form must reproduce the above copyright notice,
+*    this list of conditions and the following disclaimer in the documentation
+*    and/or other materials provided with the distribution.
+* 3. The name of the author may not be used to endorse or promote products
+*    derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+* SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+* OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+* IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+* OF SUCH DAMAGE.
+*
+* This file is part of the lwIP TCP/IP stack.
+*
+* Author: Adam Dunkels <adam@sics.se>
+*
+*/
 /****************************************Copyright (c)****************************************************
 **                             成 都 世 纪 华 宁 科 技 有 限 公 司
 **                                http://www.6lowpanworld.com
@@ -80,24 +80,24 @@ rt_mutex_t __gNetifMutex;
 *********************************************************************************************************/
 err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 {
-    static unsigned short counter = 0;
-    char tname[RT_NAME_MAX];
-    sys_sem_t tmpsem;
-
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    rt_snprintf(tname, RT_NAME_MAX, "%s%d", SYS_LWIP_SEM_NAME, counter);
-    counter ++;
-
-    tmpsem = rt_sem_create(tname, count, RT_IPC_FLAG_FIFO);
-    if (tmpsem == RT_NULL)
-        return ERR_MEM;
-    else
-    {
-        *sem = tmpsem;
-
-        return ERR_OK;
-    }
+  static unsigned short counter = 0;
+  char tname[RT_NAME_MAX];
+  sys_sem_t tmpsem;
+  
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  rt_snprintf(tname, RT_NAME_MAX, "%s%d", SYS_LWIP_SEM_NAME, counter);
+  counter ++;
+  
+  tmpsem = rt_sem_create(tname, count, RT_IPC_FLAG_FIFO);
+  if (tmpsem == RT_NULL)
+    return ERR_MEM;
+  else
+  {
+    *sem = tmpsem;
+    
+    return ERR_OK;
+  }
 }
 
 /*********************************************************************************************************
@@ -109,8 +109,8 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count)
 *********************************************************************************************************/
 void sys_sem_free(sys_sem_t *sem)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-    rt_sem_delete(*sem);
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  rt_sem_delete(*sem);
 }
 
 /*********************************************************************************************************
@@ -122,7 +122,7 @@ void sys_sem_free(sys_sem_t *sem)
 *********************************************************************************************************/
 void sys_sem_signal(sys_sem_t *sem)
 {
-    rt_sem_release(*sem);
+  rt_sem_release(*sem);
 }
 
 /*********************************************************************************************************
@@ -139,44 +139,44 @@ void sys_sem_signal(sys_sem_t *sem)
 *********************************************************************************************************/
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
-    rt_err_t ret;
-    s32_t t;
-    u32_t tick;
-
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    /* get the begin tick */
-    tick = rt_tick_get();
-    if (timeout == 0)
-        t = RT_WAITING_FOREVER;
+  rt_err_t ret;
+  s32_t t;
+  u32_t tick;
+  
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  /* get the begin tick */
+  tick = rt_tick_get();
+  if (timeout == 0)
+    t = RT_WAITING_FOREVER;
+  else
+  {
+    /* convert msecond to os tick */
+    if (timeout < (1000/RT_TICK_PER_SECOND))
+      t = 1;
     else
-    {
-        /* convert msecond to os tick */
-        if (timeout < (1000/RT_TICK_PER_SECOND))
-            t = 1;
-        else
-            t = timeout / (1000/RT_TICK_PER_SECOND);
-    }
-
-    ret = rt_sem_take(*sem, t);
-
-    if (ret == -RT_ETIMEOUT)
-        return SYS_ARCH_TIMEOUT;
-    else
-    {
-        if (ret == RT_EOK)
-            ret = 1;
-    }
-
-    /* get elapse msecond */
-    tick = rt_tick_get() - tick;
-
-    /* convert tick to msecond */
-    tick = tick * (1000 / RT_TICK_PER_SECOND);
-    if (tick == 0)
-        tick = 1;
-
-    return tick;
+      t = timeout / (1000/RT_TICK_PER_SECOND);
+  }
+  
+  ret = rt_sem_take(*sem, t);
+  
+  if (ret == -RT_ETIMEOUT)
+    return SYS_ARCH_TIMEOUT;
+  else
+  {
+    if (ret == RT_EOK)
+      ret = 1;
+  }
+  
+  /* get elapse msecond */
+  tick = rt_tick_get() - tick;
+  
+  /* convert tick to msecond */
+  tick = tick * (1000 / RT_TICK_PER_SECOND);
+  if (tick == 0)
+    tick = 1;
+  
+  return tick;
 }
 /*********************************************************************************************************
 ** Function name:       sys_sem_valid
@@ -188,7 +188,7 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 #ifndef sys_sem_valid
 int sys_sem_valid(sys_sem_t *sem)
 {
-	return (int)(*sem);
+  return (int)(*sem);
 }
 #endif
 
@@ -202,7 +202,7 @@ int sys_sem_valid(sys_sem_t *sem)
 #ifndef sys_sem_set_invalid
 void sys_sem_set_invalid(sys_sem_t *sem)
 {
-	*sem = RT_NULL;
+  *sem = RT_NULL;
 }
 #endif
 
@@ -231,24 +231,24 @@ void  sys_init(void)
 *********************************************************************************************************/
 err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 {
-    static unsigned short counter = 0;
-    char tname[RT_NAME_MAX];
-    sys_mbox_t tmpmbox;
-
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    rt_snprintf(tname, RT_NAME_MAX, "%s%d", SYS_LWIP_MBOX_NAME, counter);
-    counter ++;
-
-    tmpmbox = rt_mb_create(tname, size, RT_IPC_FLAG_FIFO);
-    if (tmpmbox != RT_NULL)
-    {
-        *mbox = tmpmbox;
-
-        return ERR_OK;
-    }
-
-    return ERR_MEM;
+  static unsigned short counter = 0;
+  char tname[RT_NAME_MAX];
+  sys_mbox_t tmpmbox;
+  
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  rt_snprintf(tname, RT_NAME_MAX, "%s%d", SYS_LWIP_MBOX_NAME, counter);
+  counter ++;
+  
+  tmpmbox = rt_mb_create(tname, size, RT_IPC_FLAG_FIFO);
+  if (tmpmbox != RT_NULL)
+  {
+    *mbox = tmpmbox;
+    
+    return ERR_OK;
+  }
+  
+  return ERR_MEM;
 }
 
 /*********************************************************************************************************
@@ -260,11 +260,11 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int size)
 *********************************************************************************************************/
 void sys_mbox_free(sys_mbox_t *mbox)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    rt_mb_delete(*mbox);
-
-    return;
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  rt_mb_delete(*mbox);
+  
+  return;
 }
 
 /*********************************************************************************************************
@@ -277,11 +277,11 @@ void sys_mbox_free(sys_mbox_t *mbox)
 *********************************************************************************************************/
 void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    rt_mb_send_wait(*mbox, (rt_uint32_t)msg, RT_WAITING_FOREVER);
-
-    return;
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  rt_mb_send_wait(*mbox, (rt_uint32_t)msg, RT_WAITING_FOREVER);
+  
+  return;
 }
 
 /*********************************************************************************************************
@@ -294,10 +294,10 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg)
 *********************************************************************************************************/
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 {
-    if (rt_mb_send(*mbox, (rt_uint32_t)msg) == RT_EOK)
-        return ERR_OK;
-
-    return ERR_MEM;
+  if (rt_mb_send(*mbox, (rt_uint32_t)msg) == RT_EOK)
+    return ERR_OK;
+  
+  return ERR_MEM;
 }
 
 /*********************************************************************************************************
@@ -311,44 +311,44 @@ err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg)
 *********************************************************************************************************/
 u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 {
-    rt_err_t ret;
-    s32_t t;
-    u32_t tick;
-
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    /* get the begin tick */
-    tick = rt_tick_get();
-
-    if(timeout == 0)
-        t = RT_WAITING_FOREVER;
+  rt_err_t ret;
+  s32_t t;
+  u32_t tick;
+  
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  /* get the begin tick */
+  tick = rt_tick_get();
+  
+  if(timeout == 0)
+    t = RT_WAITING_FOREVER;
+  else
+  {
+    /* convirt msecond to os tick */
+    if (timeout < (1000/RT_TICK_PER_SECOND))
+      t = 1;
     else
-    {
-        /* convirt msecond to os tick */
-        if (timeout < (1000/RT_TICK_PER_SECOND))
-            t = 1;
-        else
-            t = timeout / (1000/RT_TICK_PER_SECOND);
-    }
-
-    ret = rt_mb_recv(*mbox, (rt_uint32_t *)msg, t);
-
-    if(ret == -RT_ETIMEOUT)
-        return SYS_ARCH_TIMEOUT;
-    else
-    {
-        LWIP_ASSERT("rt_mb_recv returned with error!", ret == RT_EOK);
-    }
-
-    /* get elapse msecond */
-    tick = rt_tick_get() - tick;
-
-    /* convert tick to msecond */
-    tick = tick * (1000 / RT_TICK_PER_SECOND);
-    if (tick == 0)
-        tick = 1;
-
-    return tick;
+      t = timeout / (1000/RT_TICK_PER_SECOND);
+  }
+  
+  ret = rt_mb_recv(*mbox, (rt_uint32_t *)msg, t);
+  
+  if(ret == -RT_ETIMEOUT)
+    return SYS_ARCH_TIMEOUT;
+  else
+  {
+    LWIP_ASSERT("rt_mb_recv returned with error!", ret == RT_EOK);
+  }
+  
+  /* get elapse msecond */
+  tick = rt_tick_get() - tick;
+  
+  /* convert tick to msecond */
+  tick = tick * (1000 / RT_TICK_PER_SECOND);
+  if (tick == 0)
+    tick = 1;
+  
+  return tick;
 }
 
 /*********************************************************************************************************
@@ -361,19 +361,19 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout)
 *********************************************************************************************************/
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 {
-    int ret;
-
-    ret = rt_mb_recv(*mbox, (rt_uint32_t *)msg, 0);
-
-    if(ret == -RT_ETIMEOUT)
-        return SYS_ARCH_TIMEOUT;
-    else
-    {
-        if (ret == RT_EOK)
-            ret = 1;
-    }
-
-    return ret;
+  int ret;
+  
+  ret = rt_mb_recv(*mbox, (rt_uint32_t *)msg, 0);
+  
+  if(ret == -RT_ETIMEOUT)
+    return SYS_ARCH_TIMEOUT;
+  else
+  {
+    if (ret == RT_EOK)
+      ret = 1;
+  }
+  
+  return ret;
 }
 
 /*********************************************************************************************************
@@ -386,7 +386,7 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
 #ifndef sys_mbox_valid
 int sys_mbox_valid(sys_mbox_t *mbox)
 {
-    return (int)(*mbox);
+  return (int)(*mbox);
 }
 #endif
 
@@ -400,7 +400,7 @@ int sys_mbox_valid(sys_mbox_t *mbox)
 #ifndef sys_mbox_set_invalid
 void sys_mbox_set_invalid(sys_mbox_t *mbox)
 {
-    *mbox = RT_NULL;
+  *mbox = RT_NULL;
 }
 #endif
 
@@ -414,24 +414,24 @@ void sys_mbox_set_invalid(sys_mbox_t *mbox)
 *********************************************************************************************************/
 err_t sys_mutex_new(sys_mutex_t *mutex)
 {
-    static unsigned short counter = 0;
-    char tname[RT_NAME_MAX];
-    sys_mutex_t tmpmutex;
-
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    rt_snprintf(tname, RT_NAME_MAX, "%s%d", SYS_LWIP_MUTEX_NAME, counter);
-    counter ++;
-
-    tmpmutex = rt_mutex_create(tname, RT_IPC_FLAG_FIFO);
-    if (tmpmutex == RT_NULL)
-        return ERR_MEM;
-    else
-    {
-        *mutex = tmpmutex;
-
-        return ERR_OK;
-    }
+  static unsigned short counter = 0;
+  char tname[RT_NAME_MAX];
+  sys_mutex_t tmpmutex;
+  
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  rt_snprintf(tname, RT_NAME_MAX, "%s%d", SYS_LWIP_MUTEX_NAME, counter);
+  counter ++;
+  
+  tmpmutex = rt_mutex_create(tname, RT_IPC_FLAG_FIFO);
+  if (tmpmutex == RT_NULL)
+    return ERR_MEM;
+  else
+  {
+    *mutex = tmpmutex;
+    
+    return ERR_OK;
+  }
 }
 
 /*********************************************************************************************************
@@ -443,10 +443,10 @@ err_t sys_mutex_new(sys_mutex_t *mutex)
 *********************************************************************************************************/
 void sys_mutex_lock(sys_mutex_t *mutex)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-    rt_mutex_take(*mutex, RT_WAITING_FOREVER);
-
-    return;
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  rt_mutex_take(*mutex, RT_WAITING_FOREVER);
+  
+  return;
 }
 
 /*********************************************************************************************************
@@ -458,7 +458,7 @@ void sys_mutex_lock(sys_mutex_t *mutex)
 *********************************************************************************************************/
 void sys_mutex_unlock(sys_mutex_t *mutex)
 {
-    rt_mutex_release(*mutex);
+  rt_mutex_release(*mutex);
 }
 
 /*********************************************************************************************************
@@ -470,9 +470,9 @@ void sys_mutex_unlock(sys_mutex_t *mutex)
 *********************************************************************************************************/
 void sys_mutex_free(sys_mutex_t *mutex)
 {
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    rt_mutex_delete(*mutex);
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  rt_mutex_delete(*mutex);
 }
 
 #ifndef sys_mutex_valid
@@ -485,7 +485,7 @@ void sys_mutex_free(sys_mutex_t *mutex)
 *********************************************************************************************************/
 int sys_mutex_valid(sys_mutex_t *mutex)
 {
-    return (int)(*mutex);
+  return (int)(*mutex);
 }
 
 #endif
@@ -501,7 +501,7 @@ int sys_mutex_valid(sys_mutex_t *mutex)
 *********************************************************************************************************/
 void sys_mutex_set_invalid(sys_mutex_t *mutex)
 {
-    *mutex = RT_NULL;
+  *mutex = RT_NULL;
 }
 #endif
 
@@ -517,7 +517,7 @@ void sys_mutex_set_invalid(sys_mutex_t *mutex)
 #ifndef sys_jiffies
 u32_t sys_jiffies(void)
 {
-	return rt_tick_get();
+  return rt_tick_get();
 }
 #endif
 
@@ -530,7 +530,7 @@ u32_t sys_jiffies(void)
 *********************************************************************************************************/
 u32_t sys_now(void)
 {
-	return rt_tick_get() * (1000 / RT_TICK_PER_SECOND);
+  return rt_tick_get() * (1000 / RT_TICK_PER_SECOND);
 }
 
 /*********************************************************************************************************
@@ -542,9 +542,9 @@ u32_t sys_now(void)
 *********************************************************************************************************/
 void sys_arch_assert(const char *file, int line)
 {
-    rt_kprintf("\nAssertion: %d in %s, thread %s\n",
-               line, file, rt_thread_self()->name);
-    RT_ASSERT(0);
+  rt_kprintf("\nAssertion: %d in %s, thread %s\n",
+             line, file, rt_thread_self()->name);
+  RT_ASSERT(0);
 }
 
 /*********************************************************************************************************
@@ -560,58 +560,58 @@ void sys_arch_assert(const char *file, int line)
 *********************************************************************************************************/
 sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread, void *arg, int stacksize, int prio)
 {
-    rt_thread_t t;
-
-    RT_DEBUG_NOT_IN_INTERRUPT;
-
-    /* create thread */
-    t = rt_thread_create(name, thread, arg, stacksize, prio, 20);
-    RT_ASSERT(t != RT_NULL);
-
-    /* startup thread */
-    rt_thread_startup(t);
-
-    return t;
+  rt_thread_t t;
+  
+  RT_DEBUG_NOT_IN_INTERRUPT;
+  
+  /* create thread */
+  t = rt_thread_create(name, thread, arg, stacksize, prio, 20);
+  RT_ASSERT(t != RT_NULL);
+  
+  /* startup thread */
+  rt_thread_startup(t);
+  
+  return t;
 }
 
 #if SYS_LIGHTWEIGHT_PROT
 /*
- * This function is used to lock access to critical sections when lwipopt.h
- * defines SYS_LIGHTWEIGHT_PROT. It disables interrupts and returns a value
- * indicating the interrupt enable state when the function entered. This
- * value must be passed back on the matching call to sys_arch_unprotect().
- *
- * @return the interrupt level when the function was entered.
- *
- */
+* This function is used to lock access to critical sections when lwipopt.h
+* defines SYS_LIGHTWEIGHT_PROT. It disables interrupts and returns a value
+* indicating the interrupt enable state when the function entered. This
+* value must be passed back on the matching call to sys_arch_unprotect().
+*
+* @return the interrupt level when the function was entered.
+*
+*/
 sys_prot_t
 sys_arch_protect(void)
 {
-    rt_base_t level;
-
-    /* disable interrupt */
-    level = rt_hw_interrupt_disable();
-
-    return level;
+  rt_base_t level;
+  
+  /* disable interrupt */
+  level = rt_hw_interrupt_disable();
+  
+  return level;
 }
 
 /*
- * This function is used to unlock access to critical sections when lwipopt.h
- * defines SYS_LIGHTWEIGHT_PROT. It enables interrupts if the value of the lev
- * parameter indicates that they were enabled when the matching call to
- * sys_arch_protect() was made.
- *
- * @param pval is the interrupt level when the matching protect function was
- * called
- *
- */
+* This function is used to unlock access to critical sections when lwipopt.h
+* defines SYS_LIGHTWEIGHT_PROT. It enables interrupts if the value of the lev
+* parameter indicates that they were enabled when the matching call to
+* sys_arch_protect() was made.
+*
+* @param pval is the interrupt level when the matching protect function was
+* called
+*
+*/
 void
 sys_arch_unprotect(sys_prot_t pval)
 {
-    /* enable interrupt */
-    rt_hw_interrupt_enable(pval);
-
-    return;
+  /* enable interrupt */
+  rt_hw_interrupt_enable(pval);
+  
+  return;
 }
 #endif /* SYS_LIGHTWEIGHT_PROT */
 
@@ -619,33 +619,33 @@ sys_arch_unprotect(sys_prot_t pval)
 #if PPP_SUPPORT
 u32_t sio_read(sio_fd_t fd, u8_t *buf, u32_t size)
 {
-    u32_t len;
-
-    RT_ASSERT(fd != RT_NULL);
-
-    len = rt_device_read((rt_device_t)fd, 0, buf, size);
-    if (len <= 0)
-        return 0;
-
-    return len;
+  u32_t len;
+  
+  RT_ASSERT(fd != RT_NULL);
+  
+  len = rt_device_read((rt_device_t)fd, 0, buf, size);
+  if (len <= 0)
+    return 0;
+  
+  return len;
 }
 
 u32_t sio_write(sio_fd_t fd, u8_t *buf, u32_t size)
 {
-    RT_ASSERT(fd != RT_NULL);
-
-    return rt_device_write((rt_device_t)fd, 0, buf, size);
+  RT_ASSERT(fd != RT_NULL);
+  
+  return rt_device_write((rt_device_t)fd, 0, buf, size);
 }
 
 void sio_read_abort(sio_fd_t fd)
 {
-    rt_kprintf("read_abort\n");
+  rt_kprintf("read_abort\n");
 }
 #endif
 
 /*
- * export bsd socket symbol for RT-Thread Application Module
- */
+* export bsd socket symbol for RT-Thread Application Module
+*/
 #if LWIP_SOCKET
 #include <lwip/sockets.h>
 RTM_EXPORT(lwip_accept);

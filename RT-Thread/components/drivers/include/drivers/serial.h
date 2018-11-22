@@ -1,21 +1,7 @@
 /*
- * File      : serial.h
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
+ * Copyright (c) 2006-2018, RT-Thread Development Team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
@@ -54,9 +40,9 @@
 #define STOP_BITS_3                     2
 #define STOP_BITS_4                     3
 
-#ifndef _WIN32
-//#include <windows.h>
-//#else
+#ifdef _WIN32
+#include <windows.h>
+#else
 #define PARITY_NONE                     0
 #define PARITY_ODD                      1
 #define PARITY_EVEN                     2
@@ -118,7 +104,7 @@ struct serial_configure
 };
 
 /*
- * Serial FIFO mode
+ * Serial FIFO mode 
  */
 struct rt_serial_rx_fifo
 {
@@ -135,7 +121,7 @@ struct rt_serial_tx_fifo
     struct rt_completion completion;
 };
 
-/*
+/* 
  * Serial DMA mode
  */
 struct rt_serial_rx_dma

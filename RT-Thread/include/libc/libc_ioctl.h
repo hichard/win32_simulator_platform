@@ -1,21 +1,11 @@
 /*
+ * Copyright (c) 2006-2018, RT-Thread Development Team
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/*
  * File      : libc_ioctl.h
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2017, RT-Thread Development Team
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Change Logs:
  * Date           Author       Notes
@@ -30,7 +20,7 @@
 #define _IOC_WRITE 1U
 #define _IOC_READ  2U
 
-#ifndef _WIN32
+#if  defined(_WIN32) && defined(__MINGW32__)
 #define _IO(a,b)    _IOC(_IOC_NONE,(a),(b),0)
 #define _IOW(a,b,c) _IOC(_IOC_WRITE,(a),(b),sizeof(c))
 #define _IOR(a,b,c) _IOC(_IOC_READ,(a),(b),sizeof(c))

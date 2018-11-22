@@ -1,6 +1,7 @@
 /* Default linker script, for normal executables */
 OUTPUT_FORMAT(pei-i386)
 SEARCH_DIR("/usr/local/mingw32/lib"); SEARCH_DIR("/usr/local/lib"); SEARCH_DIR("/lib"); SEARCH_DIR("/usr/lib");
+ENTRY(entry)
 SECTIONS
 {
   /* Make the virtual address and file offset synced if the alignment is

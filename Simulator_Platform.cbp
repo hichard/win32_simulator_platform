@@ -5,7 +5,7 @@
 		<Option title="Simulator_Platform" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
-		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\net\lwip\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;RT-Thread\components\net\lwip\;RT-Thread\components\net\lwip\src\core\;RT-Thread\components\net\lwip\src\core\ipv4\;RT-Thread\components\net\lwip\src\core\ipv6\;RT-Thread\components\net\lwip\src\arch\;RT-Thread\components\net\lwip\src\api\;RT-Thread\components\net\lwip\src\netif\;RT-Thread\components\driver\include\;RT-Thread\components\dfs\filesystems\;RT-Thread\components\dfs\include\;RT-Thread\components\dfs\src\;RT-Thread\components\dfs\filesystems\elmfat\;RT-Thread\components\driver\audio\;RT-Thread\packages\music\;RT-Thread\packages\music\wav\;" />
+		<Option virtualFolders="RT-Thread\;User\;RT-Thread\board\;RT-Thread\components\;RT-Thread\include\;RT-Thread\kernel\;RT-Thread\libcpu\;RT-Thread\packages\;RT-Thread\include\libc\;RT-Thread\components\cplusplus\;RT-Thread\components\dfs\;RT-Thread\components\driver\;RT-Thread\components\finsh\;RT-Thread\components\net\;RT-Thread\components\net\lwip\;RT-Thread\components\utilities\;RT-Thread\components\driver\src\;RT-Thread\components\driver\serial\;RT-Thread\packages\netutils\;RT-Thread\packages\netutils\ping\;RT-Thread\packages\netutils\ntp\;RT-Thread\components\driver\rtc\;RT-Thread\components\net\lwip\;RT-Thread\components\net\lwip\src\core\;RT-Thread\components\net\lwip\src\core\ipv4\;RT-Thread\components\net\lwip\src\core\ipv6\;RT-Thread\components\net\lwip\src\arch\;RT-Thread\components\net\lwip\src\api\;RT-Thread\components\net\lwip\src\netif\;RT-Thread\components\driver\include\;RT-Thread\components\dfs\filesystems\;RT-Thread\components\dfs\include\;RT-Thread\components\dfs\src\;RT-Thread\components\dfs\filesystems\elmfat\;RT-Thread\components\driver\audio\;RT-Thread\packages\music\;RT-Thread\packages\music\wav\;RT-Thread\components\dfs\filesystems\devfs\;RT-Thread\components\libc\;" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/Simulator_Platform" prefix_auto="1" extension_auto="1" />
@@ -30,6 +30,7 @@
 					<Add directory="User" />
 				</Compiler>
 				<Linker>
+					<Add option="-e _entry" />
 					<Add option="-T RT-Thread\board\mingw.ld" />
 					<Add library="D:/soft_install/app_soft/CodeBlocks/MinGW/lib/libwinmm.a" />
 				</Linker>
@@ -81,6 +82,10 @@
 			<Option virtualFolder="RT-Thread/board/" />
 		</Unit>
 		<Unit filename="RT-Thread/board/tap_netif.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/board/" />
+		</Unit>
+		<Unit filename="RT-Thread/board/ttyuart_win32.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="RT-Thread/board/" />
 		</Unit>
@@ -137,6 +142,13 @@
 			<Option compile="0" />
 			<Option link="0" />
 			<Option virtualFolder="RT-Thread/components/cplusplus/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/devfs/devfs.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/devfs/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/dfs/filesystems/devfs/devfs.h">
+			<Option virtualFolder="RT-Thread/components/dfs/filesystems/devfs/" />
 		</Unit>
 		<Unit filename="RT-Thread/components/dfs/filesystems/elmfat/dfs_elm.c">
 			<Option compilerVar="CC" />
@@ -360,6 +372,14 @@
 		<Unit filename="RT-Thread/components/finsh/symbol.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="RT-Thread/components/finsh/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/libc/compilers/armlibc/libc.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/libc/" />
+		</Unit>
+		<Unit filename="RT-Thread/components/libc/compilers/armlibc/stdio.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="RT-Thread/components/libc/" />
 		</Unit>
 		<Unit filename="RT-Thread/components/net/lwip/lwip_ethernet.c">
 			<Option compilerVar="CC" />
@@ -670,13 +690,6 @@
 			<Option compilerVar="CC" />
 			<Option virtualFolder="RT-Thread/kernel/" />
 		</Unit>
-		<Unit filename="RT-Thread/kernel/module.c">
-			<Option compilerVar="CC" />
-			<Option virtualFolder="RT-Thread/kernel/" />
-		</Unit>
-		<Unit filename="RT-Thread/kernel/module.h">
-			<Option virtualFolder="RT-Thread/kernel/" />
-		</Unit>
 		<Unit filename="RT-Thread/kernel/object.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="RT-Thread/kernel/" />
@@ -741,6 +754,10 @@
 			<Option virtualFolder="User/" />
 		</Unit>
 		<Unit filename="User/music_player.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="User/" />
+		</Unit>
+		<Unit filename="User/pipe_example.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="User/" />
 		</Unit>

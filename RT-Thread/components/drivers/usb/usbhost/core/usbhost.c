@@ -1,21 +1,7 @@
 /*
- * File      : usbhost.c
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2011, RT-Thread Development Team
+ * Copyright (c) 2006-2018, RT-Thread Development Team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
@@ -27,7 +13,11 @@
 #define USB_HOST_CONTROLLER_NAME      "usbh"
 
 #if defined(RT_USBH_HID_KEYBOARD) || defined(RT_USBH_HID_MOUSE)
-#include <hid.h>
+#include "../class/hid.h"
+#endif
+
+#ifdef RT_USBH_CDC
+#include "../class/hcdc.h"
 #endif
 
 /**
@@ -57,6 +47,18 @@ rt_err_t rt_usb_host_init(void)
 #ifdef RT_USBH_MSTORAGE
     /* register mass storage class driver */
     drv = rt_usbh_class_driver_storage();
+    rt_usbh_class_driver_register(drv);
+#endif
+    
+#ifdef RT_USBH_HID
+    /* register hid class driver */
+    drv = rt_usbh_class_driver_hid();
+    rt_usbh_class_driver_register(drv);
+#endif
+    
+#ifdef RT_USBH_CDC
+    /* register cdc class driver */
+    drv = rt_usbh_class_driver_cdc();
     rt_usbh_class_driver_register(drv);
 #endif
 

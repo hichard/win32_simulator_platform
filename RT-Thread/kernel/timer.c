@@ -1,21 +1,7 @@
 /*
- * File      : timer.c
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
+ * Copyright (c) 2006-2018, RT-Thread Development Team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
@@ -220,7 +206,7 @@ rt_err_t rt_timer_detach(rt_timer_t timer)
 
     rt_object_detach((rt_object_t)timer);
 
-    return -RT_EOK;
+    return RT_EOK;
 }
 RTM_EXPORT(rt_timer_detach);
 
@@ -283,7 +269,7 @@ rt_err_t rt_timer_delete(rt_timer_t timer)
 
     rt_object_delete((rt_object_t)timer);
 
-    return -RT_EOK;
+    return RT_EOK;
 }
 RTM_EXPORT(rt_timer_delete);
 #endif
@@ -410,7 +396,7 @@ rt_err_t rt_timer_start(rt_timer_t timer)
     }
 #endif
 
-    return -RT_EOK;
+    return RT_EOK;
 }
 RTM_EXPORT(rt_timer_start);
 

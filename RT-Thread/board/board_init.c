@@ -43,7 +43,6 @@ static rt_uint8_t *heap;
 /*********************************************************************************************************
   外部函数定义
 *********************************************************************************************************/
-extern int win_main(void);
 
 /*********************************************************************************************************
 ** Function name:       rt_hw_sram_init
@@ -66,42 +65,6 @@ static rt_uint8_t *rt_hw_sram_init(void)
 #endif
     }
     return heap;
-}
-
-/*********************************************************************************************************
-** Function name:       main_thread_entry
-** Descriptions:        the system main thread
-** input parameters:    NONE
-** output parameters:   NONE
-** Returned value:      NONE
-*********************************************************************************************************/
-void main_thread_entry(void *parameter)
-{
-    /* RT-Thread components initialization */
-    rt_components_init();
-
-    win_main();
-}
-
-/*********************************************************************************************************
-** Function name:       rt_application_init
-** Descriptions:        创建应用线程
-** input parameters:    NONE
-** output parameters:   NONE
-** Returned value:      NONE
-*********************************************************************************************************/
-static int rt_application_init()
-{
-    rt_thread_t tid;
-
-    tid = rt_thread_create("init",
-                           main_thread_entry, RT_NULL,
-                           2048, 0, 20);
-
-    if (tid != RT_NULL)
-        rt_thread_startup(tid);
-
-    return 0;
 }
 
 /*********************************************************************************************************
@@ -204,62 +167,6 @@ void rt_hw_board_init(void)
 #endif
 }
 
-/**
- * This function will startup RT-Thread RTOS.
- */
-void rtthread_startup(void)
-{
-    /* init board */
-    rt_hw_board_init();
-
-    /* show version */
-    rt_show_version();
-
-    /* init tick */
-    rt_system_tick_init();
-
-    /* init kernel object */
-    rt_system_object_init();
-
-    /* init timer system */
-    rt_system_timer_init();
-
-    /* init scheduler system */
-    rt_system_scheduler_init();
-
-    /* init application */
-    rt_application_init();
-
-    /* init timer thread */
-    rt_system_timer_thread_init();
-
-    /* init idle thread */
-    rt_thread_idle_init();
-
-    /* start scheduler */
-    rt_system_scheduler_start();
-
-    /* never reach here */
-    return ;
-}
-
-/*********************************************************************************************************
-** Function name:       main
-** Descriptions:        c语言主函数入口
-** input parameters:    NONE
-** output parameters:   NONE
-** Returned value:      0：正确返回，无任何意义
-*********************************************************************************************************/
-int main(void)
-{
-    /* disable interrupt first */
-    rt_hw_interrupt_disable();
-
-    /* startup RT-Thread RTOS */
-    rtthread_startup();
-
-    return 0;
-}
 /*********************************************************************************************************
 END FILE
 *********************************************************************************************************/

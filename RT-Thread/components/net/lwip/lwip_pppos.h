@@ -27,14 +27,30 @@
 extern "C" {
 #endif
   
+#include <stdint.h>
 #include <rtthread.h>
+  
+ 
+/*********************************************************************************************************
+**  基本配置
+*********************************************************************************************************/
+#define PPPOS_DEBUG             0     // 是否使能调试功能输出
+#define AT_TRY_NUM              10    // AT指令重试次数
+#define PPP_TRY_NUM             3     // PPP重新连接重试次数
+
+/*********************************************************************************************************
+**  联网状态灯控制
+*********************************************************************************************************/
+#define ppp_net_on()            rt_hw_led_on(1)
+#define ppp_net_off()           rt_hw_led_off(1)
  
 /*********************************************************************************************************
 **  pppos设备注册初始化
 *********************************************************************************************************/
-extern int lwip_pppos_init(const char *ttyName);
-extern rt_uint16_t gprs_rssi_get(void);
-extern int gprs_ccid_get(char *ccid);
+extern int lwip_pppos_init(const char *tty_name,  
+                         void(*power_ctrl)(void), 
+                         int(*modem_at_dial)(rt_device_t handle,uint8_t *buffer), 
+                         const char * apn_name, const char *apn_password);
   
 #ifdef __cplusplus
 }

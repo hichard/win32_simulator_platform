@@ -69,10 +69,13 @@
 #define MEMP_MEM_MALLOC                 0
 #endif
 
+// 特殊定义，规定内存使用的地址，如果使用的STM32F407,则使用ccm ram
+//#define LWIP_RAM_HEAP_POINTER          0x10000000
+
 // 使用lwip内部的内存分配算法
 #define MEMP_MEM_INIT                   0
 #define MEM_ALIGNMENT                   4    // 内存对齐方式，和CPU有关，ARM一般为4
-#define MEM_SIZE                        (16 * 1024) // default is 1600
+#define MEM_SIZE                        (60 * 1024) // default is 1600
 #define MEMP_OVERFLOW_CHECK             0
 #define MEMP_SANITY_CHECK               0
 #define MEM_SANITY_CHECK                0
@@ -86,7 +89,7 @@
 /*********************************************************************************************************
 ** lwip内部pool分配相关定义
 *********************************************************************************************************/
-#define MEMP_NUM_PBUF                   32    // 最大的用于PBUF_ROM and PBUF_REF的pbuf数量
+#define MEMP_NUM_PBUF                   128    // 最大的用于PBUF_ROM and PBUF_REF的pbuf数量
 #define MEMP_NUM_RAW_PCB                6
 #define MEMP_NUM_UDP_PCB                6
 #define MEMP_NUM_TCP_PCB                6
@@ -110,7 +113,7 @@
 #define MEMP_NUM_TCPIP_MSG_INPKT        16
 #define MEMP_NUM_NETDB                  1
 #define MEMP_NUM_LOCALHOSTLIST          1
-#define PBUF_POOL_SIZE                  32
+#define PBUF_POOL_SIZE                  128
 //#define MEMP_NUM_API_MSG                MEMP_NUM_TCPIP_MSG_API
 //#define MEMP_NUM_DNS_API_MSG            MEMP_NUM_TCPIP_MSG_API
 //#define MEMP_NUM_SOCKET_SETGETSOCKOPT_DATA MEMP_NUM_TCPIP_MSG_API
@@ -195,7 +198,7 @@
 /*********************************************************************************************************
 ** IGMP参数配置——IGMP options
 *********************************************************************************************************/
-#define LWIP_IGMP                       0
+#define LWIP_IGMP                       1
 
 /*********************************************************************************************************
 ** DNS参数配置——DNS options
@@ -292,22 +295,22 @@
 /*********************************************************************************************************
 ** PPP options
 *********************************************************************************************************/
-//#define PPP_SUPPORT                     1
-//
-////#define PPPOE_SUPPORT                   0
-////#define PPPOL2TP_SUPPORT                0
-//#define PPPOS_SUPPORT                   PPP_SUPPORT
-//
-////#define PPP_INPROC_IRQ_SAFE             0
-//
-//#define PAP_SUPPORT                     1
-//#define CHAP_SUPPORT                    1
+#define PPP_SUPPORT                     0
+
+//#define PPPOE_SUPPORT                   0
+//#define PPPOL2TP_SUPPORT                0
+#define PPPOS_SUPPORT                   PPP_SUPPORT
+
+//#define PPP_INPROC_IRQ_SAFE             0
+
+#define PAP_SUPPORT                     1
+#define CHAP_SUPPORT                    1
 
 /*********************************************************************************************************
 ** Thread options
 *********************************************************************************************************/
 #define TCPIP_THREAD_NAME              "tcpip"
-#define TCPIP_THREAD_STACKSIZE          4096
+#define TCPIP_THREAD_STACKSIZE          2048
 #define TCPIP_THREAD_PRIO               1
 #define TCPIP_MBOX_SIZE                 32
 #define LWIP_TCPIP_THREAD_ALIVE()
@@ -349,7 +352,7 @@
 #define SO_REUSE_RXTOALL                1
 //#define LWIP_FIONREAD_LINUXMODE         0
 #define LWIP_SOCKET_SELECT              1
-#define LWIP_SOCKET_POLL                1
+#define LWIP_SOCKET_POLL                0
 
 /*********************************************************************************************************
 ** Statistics options

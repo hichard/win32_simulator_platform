@@ -1,21 +1,7 @@
 /*
- * File      : spi_flash_sfud.c
- * This file is part of RT-Thread RTOS
- * COPYRIGHT (C) 2006 - 2016, RT-Thread Development Team
+ * Copyright (c) 2006-2018, RT-Thread Development Team
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Change Logs:
  * Date           Author       Notes
@@ -97,7 +83,7 @@ static rt_err_t rt_sfud_control(rt_device_t dev, int cmd, void *args) {
 static rt_size_t rt_sfud_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_size_t size) {
     struct spi_flash_device *rtt_dev = (struct spi_flash_device *) (dev->user_data);
     sfud_flash *sfud_dev = (sfud_flash *) (rtt_dev->user_data);
-    /* change the block device¡¯s logic address to physical address */
+    /* change the block device's logic address to physical address */
     rt_off_t phy_pos = pos * rtt_dev->geometry.bytes_per_sector;
     rt_size_t phy_size = size * rtt_dev->geometry.bytes_per_sector;
 
@@ -111,7 +97,7 @@ static rt_size_t rt_sfud_read(rt_device_t dev, rt_off_t pos, void* buffer, rt_si
 static rt_size_t rt_sfud_write(rt_device_t dev, rt_off_t pos, const void* buffer, rt_size_t size) {
     struct spi_flash_device *rtt_dev = (struct spi_flash_device *) (dev->user_data);
     sfud_flash *sfud_dev = (sfud_flash *) (rtt_dev->user_data);
-    /* change the block device¡¯s logic address to physical address */
+    /* change the block device's logic address to physical address */
     rt_off_t phy_pos = pos * rtt_dev->geometry.bytes_per_sector;
     rt_size_t phy_size = size * rtt_dev->geometry.bytes_per_sector;
 
@@ -189,7 +175,7 @@ void sfud_log_debug(const char *file, const long line, const char *format, ...) 
     va_start(args, format);
     rt_kprintf("[SFUD] (%s:%ld) ", file, line);
     /* must use vprintf to print */
-    vsnprintf(log_buf, sizeof(log_buf), format, args);
+    rt_vsnprintf(log_buf, sizeof(log_buf), format, args);
     rt_kprintf("%s\n", log_buf);
     va_end(args);
 }
@@ -207,7 +193,7 @@ void sfud_log_info(const char *format, ...) {
     va_start(args, format);
     rt_kprintf("[SFUD] ");
     /* must use vprintf to print */
-    vsnprintf(log_buf, sizeof(log_buf), format, args);
+    rt_vsnprintf(log_buf, sizeof(log_buf), format, args);
     rt_kprintf("%s\n", log_buf);
     va_end(args);
 }
@@ -298,6 +284,7 @@ rt_spi_flash_device_t rt_sfud_flash_probe(const char *spi_flash_dev_name, const 
             sfud_dev->name = spi_flash_dev_name_bak;
             /* accessed each other */
             rtt_dev->user_data = sfud_dev;
+            rtt_dev->rt_spi_device->user_data = rtt_dev;
             rtt_dev->flash_device.user_data = rtt_dev;
             sfud_dev->user_data = rtt_dev;
             /* initialize SFUD device */
@@ -605,6 +592,35 @@ static void sf(uint8_t argc, char **argv) {
     }
 }
 MSH_CMD_EXPORT(sf, SPI Flash operate.);
+
+sfud_flash_t rt_sfud_flash_find(const char *spi_dev_name)
+{
+    rt_spi_flash_device_t  rtt_dev       = RT_NULL;
+    struct rt_spi_device  *rt_spi_device = RT_NULL;
+    sfud_flash_t           sfud_dev      = RT_NULL;
+    
+    rt_spi_device = (struct rt_spi_device *) rt_device_find(spi_dev_name);
+    if (rt_spi_device == RT_NULL || rt_spi_device->parent.type != RT_Device_Class_SPIDevice)
+    {
+        rt_kprintf("ERROR: SPI device %s not found!\n", spi_dev_name);
+        goto error;
+    }
+
+    rtt_dev = (rt_spi_flash_device_t)(rt_spi_device->user_data);
+    if (rtt_dev && rtt_dev->user_data)
+    {
+        sfud_dev = (sfud_flash_t)(rtt_dev->user_data);
+        return sfud_dev;
+    }
+    else
+    {
+        rt_kprintf("ERROR: SFUD flash device not found!\n");
+        goto error;
+    }
+
+error:
+    return RT_NULL;
+}
 
 #endif /* defined(RT_USING_FINSH) && defined(FINSH_USING_MSH) */
 

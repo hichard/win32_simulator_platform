@@ -67,7 +67,7 @@ void mnt_init(void)
     }
     else
     {
-        //dfs_mkfs("elm", "sd0");
+        dfs_mkfs("elm", "sd0");
         rt_kprintf("File System on sd initialization failed!\n");
     }
 }

@@ -95,9 +95,9 @@ extern "C" {
 /*********************************************************************************************************
 **  使用用户独立的main函数
 *********************************************************************************************************/
-//#define RT_USING_USER_MAIN
-//#define RT_MAIN_THREAD_STACK_SIZE   2048
-//#define RT_MAIN_THREAD_PRIO         0
+#define RT_USING_USER_MAIN
+#define RT_MAIN_THREAD_STACK_SIZE   2048
+#define RT_MAIN_THREAD_PRIO         0
 
 /*********************************************************************************************************
 **  IO设备相关配置
@@ -179,18 +179,27 @@ extern "C" {
 
 #elif defined(__GNUC__)
 #define RT_USING_NOLIBC
+//#define RT_USING_LIBC
+//#define RT_USING_NEWLIB
 #ifdef __MINGW32__
 #define _UWIN
 #endif // __MINGW32__
 #endif /* end of _MSC_VER */
 
 /*********************************************************************************************************
+**  POSIX支持
+*********************************************************************************************************/
+#define RT_USING_POSIX
+//#define RT_USING_PTHREADS
+
+/*********************************************************************************************************
 **  文件系统相关配置
 *********************************************************************************************************/
 /* SECTION: device filesystem */
 #define RT_USING_DFS
+#define DFS_FILESYSTEM_TYPES_MAX  4
 
-//#define RT_USING_DFS_DEVFS
+#define RT_USING_DFS_DEVFS
 
   /* Use Using working directory */
 #define DFS_USING_WORKDIR
