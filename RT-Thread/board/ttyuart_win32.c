@@ -45,8 +45,8 @@
 /*********************************************************************************************************
 ** 需要的宏定义
 *********************************************************************************************************/
-#define TTY_UART_BUFFER_POOL_CNT                 4      // 缓冲区数量
-#define TTY_UART_BUFFER_SIZE                     2048   // 每个缓冲区大小
+#define TTY_UART_BUFFER_POOL_CNT                 64      // 缓冲区数量
+#define TTY_UART_BUFFER_SIZE                     1024   // 每个缓冲区大小
 
 /*********************************************************************************************************
 ** 定义是否允许访问数据队列的宏
@@ -92,27 +92,33 @@ static DWORD WINAPI tty_uart_recv_thread(LPVOID lParam)
     HANDLE hCom = serial_handle->fd;
     BOOL bReadStat;
     DWORD dwCount;
+    DWORD dwErrorFlags;
+    COMSTAT ComStat;
     uint8_t *recv_data;
 
     for(;;)
     {
+        ClearCommError(serial_handle->fd,&dwErrorFlags,&ComStat);
         if(Serial_Buffer_Full(serial_handle)) {
-            Sleep(100);
+            rt_completion_done(&serial_handle->Rx_Comp);
+            //PurgeComm(hCom, /*PURGE_TXCLEAR|*/PURGE_RXCLEAR);
+            Sleep(1);
             continue;
         }
 
         recv_data = serial_handle->recv_buffer[serial_handle->buf_write].buffer;
+        //ClearCommError(hCom,&dwErrorFlags,&ComStat);
         dwCount = TTY_UART_BUFFER_SIZE;
         bReadStat=ReadFile(hCom, recv_data, dwCount, &dwCount, NULL);
         if(!bReadStat)
         {
-            Sleep(50);
+            Sleep(10);
             continue;
         }
 
         if(dwCount <= 0)
         {
-            Sleep(50);
+            Sleep(10);
             continue;
         }
         serial_handle->recv_buffer[serial_handle->buf_write].size = dwCount;
@@ -161,11 +167,11 @@ static rt_err_t win32_serial_init (rt_device_t dev)
     serial_handle->serial_configure.parity = PARITY_NONE;
     serial_handle->serial_configure.stop_bits = STOP_BITS_1;
 
-    SetupComm(serial_handle->fd,4*1024,4*1024);
+    SetupComm(serial_handle->fd,2048*1024,2048*1024);
     COMMTIMEOUTS TimeOuts;
     TimeOuts.ReadIntervalTimeout =  5;  // MAXDWORD;
     TimeOuts.ReadTotalTimeoutMultiplier = 0;
-    TimeOuts.ReadTotalTimeoutConstant = 10;
+    TimeOuts.ReadTotalTimeoutConstant = 50;
     TimeOuts.WriteTotalTimeoutMultiplier = 0;
     TimeOuts.WriteTotalTimeoutConstant = 0;
     SetCommTimeouts(serial_handle->fd,&TimeOuts);
@@ -252,10 +258,12 @@ static rt_size_t win32_serial_write (rt_device_t dev, rt_off_t pos, const void* 
     struct ttyuart_device *serial_handle = dev->user_data;
     BOOL bWriteStat;
     DWORD dwBytesWrite;
+    DWORD dwErrorFlags;
+    COMSTAT ComStat;
 
     rt_mutex_take(serial_handle->send_mutex, RT_WAITING_FOREVER);
     dwBytesWrite = size;
-    // ClearCommError(hCom,&dwErrorFlags,&ComStat);
+    ClearCommError(serial_handle->fd,&dwErrorFlags,&ComStat);
     bWriteStat = WriteFile(serial_handle->fd,buffer,dwBytesWrite,&dwBytesWrite,NULL);
     if(!bWriteStat)
     {
