@@ -351,7 +351,7 @@
 #define SO_REUSE                        1
 #define SO_REUSE_RXTOALL                1
 //#define LWIP_FIONREAD_LINUXMODE         0
-#define LWIP_SOCKET_SELECT              1
+#define LWIP_SOCKET_SELECT              0
 #define LWIP_SOCKET_POLL                0
 
 /*********************************************************************************************************
