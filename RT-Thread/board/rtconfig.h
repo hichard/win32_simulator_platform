@@ -207,7 +207,7 @@ extern "C" {
   /* the max number of mounted filesystem */
 #define DFS_FILESYSTEMS_MAX             4
   /* the max number of opened files       */
-#define DFS_FD_MAX                      8
+#define DFS_FD_MAX                      16
 
 /*********************************************************************************************************
 **  elm fat相关配置
@@ -256,8 +256,8 @@ extern "C" {
 //#define RT_LWIP_NO_RX_THREAD
 /* ethernet if thread options */
 #define RT_LWIP_ETHTHREAD_PRIORITY		2
-#define RT_LWIP_ETHTHREAD_MBOX_SIZE		16
-#define RT_LWIP_ETHTHREAD_STACKSIZE		512
+#define RT_LWIP_ETHTHREAD_MBOX_SIZE		64
+#define RT_LWIP_ETHTHREAD_STACKSIZE		1024
 
 /*********************************************************************************************************
 **  6LoWPAN支持

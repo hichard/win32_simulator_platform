@@ -43,10 +43,14 @@ void tcp_app_thread(void *parg)
 {
     int rv;
     int sockfd;
-    int recv_len;
-    struct addrinfo hints, *res, *p;
+    int recv_len, snd_len;
+    struct addrinfo hints, *servinfo, *p;
     //char ipstr[INET6_ADDRSTRLEN];
     char ipstr[40];
+    struct timeval timeout;
+
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
 
     /*
     ** Step 1, 域名解析
@@ -54,12 +58,16 @@ void tcp_app_thread(void *parg)
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; // AF_INET or AF_INET6 to force version， AF_UNSPEC is best
     hints.ai_socktype = SOCK_STREAM;
-    if ((rv = getaddrinfo(TCP_SERVER_ADDRESS, TCP_SERVER_PORT, &hints, &res)) != 0)
+    if ((rv = getaddrinfo(TCP_SERVER_ADDRESS, TCP_SERVER_PORT, &hints, &servinfo)) != 0)
     {
         rt_kprintf( "getaddrinfo: get dns error\r\n");
         return;
     }
-    for(p = res; p != NULL; p = p->ai_next)
+
+    /*
+    ** Step 2, 根据域名解析结果连接服务器
+    */
+    for(p = servinfo; p != NULL; p = p->ai_next)
     {
         void *addr;
         char *ipver;
@@ -79,25 +87,34 @@ void tcp_app_thread(void *parg)
 #endif
         inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
         rt_kprintf(" %s: %s\n", ipver, ipstr);
+
+        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+        {
+            rt_kprintf( "create socket error\r\n");
+            continue;
+        }
+
+        /* set receive and send timeout option */
+        setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (void *) &timeout,
+                   sizeof(timeout));
+        setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (void *) &timeout,
+                   sizeof(timeout));
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1)
+        {
+            closesocket(sockfd);
+            rt_kprintf( "connect server error\r\n");
+            continue;
+        }
+        break; // if we get here, we must have connected successfully
     }
 
-    /*
-    ** Step 2, 建立socket,连接服务器
-    */
-    if ((sockfd = socket(res->ai_family, res->ai_socktype,
-                         res->ai_protocol)) == -1)
+    if(p == NULL)
     {
-        rt_kprintf( "create socket error\r\n");
-        freeaddrinfo(res); // free the linked list
+        rt_kprintf( "dns error, can't connect to server\r\n");
+        freeaddrinfo(servinfo); // free the linked list
         return;
     }
-    if (connect(sockfd, res->ai_addr, res->ai_addrlen) == -1)
-    {
-        closesocket(sockfd);
-        rt_kprintf( "connect server error\r\n");
-        freeaddrinfo(res); // free the linked list
-        return;
-    }
+    freeaddrinfo(servinfo); // free the linked list
 
     /*
     ** Step 3, 进入数据收发循环
@@ -119,10 +136,26 @@ void tcp_app_thread(void *parg)
             }
         }
 
-        /* 发送数据到sock连接 */
-        send(sockfd, tcp_buffer, recv_len, 0);
+        if(recv_len > 0)
+        {
+
+            /* 发送数据到sock连接 */
+            snd_len = send(sockfd, tcp_buffer, recv_len, 0);
+            if (snd_len == 0)
+            {
+                rt_kprintf("send error,close the socket.\r\n");
+                break;
+            }
+            if(-1 == snd_len)
+            {
+                if(!(errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN))
+                {
+                    rt_kprintf("send error,close the socket.\r\n");
+                    break;
+                }
+            }
+        }
     }
-    freeaddrinfo(res); // free the linked list
     closesocket(sockfd);
     return;
 }
@@ -135,7 +168,7 @@ int cmd_tcp_test(int argc, char **argv)
 
     if (argc == 1)
     {
-        tid = rt_thread_create("tcp", tcp_app_thread, RT_NULL, 1024, 10, 20);
+        tid = rt_thread_create("tcp", tcp_app_thread, RT_NULL, 2048, 10, 20);
         if (tid != RT_NULL) {
             rt_thread_startup(tid);
             rt_kprintf("create tcp test thread ok!\r\n");
