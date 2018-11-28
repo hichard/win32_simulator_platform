@@ -48,22 +48,22 @@ int pipe_read(int fd, char *buffer, int len, int timeout)
   fd_set fds;
   rt_int32_t max_fd = 0, res = 0;
   struct timeval timeout_val;
-  
+
   max_fd = fd + 1;
   FD_ZERO(&fds);
-    
+
   FD_SET(fd, &fds);
-  
+
   timeout_val.tv_sec = timeout;
   timeout_val.tv_usec = 0;
   res = select(max_fd, &fds, RT_NULL, RT_NULL, &timeout_val);
-    
+
   /* data is ready */
   if (FD_ISSET(fd, &fds))
   {
     return read(fd, buffer, len);
   }
-  
+
   return -1;
 }
 
@@ -81,35 +81,37 @@ int pipe_test(int argc, char **argv)
   rt_pipe_t *pipe = RT_NULL;
   int read_fd, write_fd;
   int len;
-  
+
   if(argc != 1) {
     rt_kprintf("mustn't have param\r\n");
   }
-  
+
   pipe = rt_pipe_create("pipe0", 1024 /*PIPE_BUFSZ*/);
   if (pipe == RT_NULL)
   {
     rt_kprintf("pipe create failed\n");
     return -1;
-    
+
   }
-  
+
   snprintf(dev_name, sizeof(dev_name), "/dev/pipe0");
   read_fd = open(dev_name, O_RDONLY, 0);
   if (read_fd < 0) {
     len = -1;
     goto fail_read;
   }
-    
-  
+
+
   write_fd = open(dev_name, O_WRONLY, 0);
   if (write_fd < 0) {
     len = -1;
     goto fail_write;
   }
-  
+
   rt_kprintf("pipe init succeed\n");
-  
+
+  write(write_fd, pipe_buffer, 1024);
+
   // 这里会阻塞线程，必须用select实现超时机制
   len = pipe_read(read_fd, (char *)pipe_buffer, 1024, 3);
   if(len > 0) {
@@ -118,10 +120,10 @@ int pipe_test(int argc, char **argv)
     rt_kprintf("pipe0 can't recv data\r\n");
   }
   close(write_fd);
- 
+
 fail_write:
   close(read_fd);
-  
+
 fail_read:
     rt_pipe_delete("pipe0");
     return len;

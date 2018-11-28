@@ -314,6 +314,7 @@ static struct rt_device __gwin32_uart_device;
 *********************************************************************************************************/
 void rt_win32_ttyuart_driver_init(void)
 {
+#if 0
   rt_device_t device;
 
   // ×¢²áÇý¶¯
@@ -331,6 +332,7 @@ void rt_win32_ttyuart_driver_init(void)
 
   /* register a character device */
   rt_device_register(device, "ttyS0", RT_DEVICE_FLAG_RDWR);
+  #endif
 }
 
 /*********************************************************************************************************
