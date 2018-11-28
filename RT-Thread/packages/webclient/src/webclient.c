@@ -424,7 +424,8 @@ static int webclient_connect(struct webclient_session *session, const char *URI)
 
         if (connect(socket_handle, res->ai_addr, res->ai_addrlen) != 0)
         {
-            /* connect failed */
+            /* connect failed, close the socket handle */
+            closesocket(socket_handle);
             LOG_E("connect failed, connect socket(%d) error.", socket_handle);
             rc = -WEBCLIENT_CONNECT_FAILED;
             goto __exit;

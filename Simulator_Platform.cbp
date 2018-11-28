@@ -761,6 +761,10 @@
 			<Option compilerVar="CC" />
 			<Option virtualFolder="User/" />
 		</Unit>
+		<Unit filename="User/tcp_client_example.c">
+			<Option compilerVar="CC" />
+			<Option virtualFolder="User/" />
+		</Unit>
 		<Unit filename="User/tty_uart_example.c">
 			<Option compilerVar="CC" />
 			<Option virtualFolder="User/" />

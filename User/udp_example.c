@@ -8,7 +8,7 @@
 ** File Name:           UDP_App.c
 ** Last modified Date:  2015-11-14
 ** Last Version:        v1.0
-** Description:         UDP以太网串口数据转换模实现
+** Description:         UDP例子
 **
 **--------------------------------------------------------------------------------------------------------
 ** Created By:          Renhaibo任海波

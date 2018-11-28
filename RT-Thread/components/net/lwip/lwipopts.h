@@ -111,8 +111,8 @@
 #define MEMP_NUM_SELECT_CB              4
 #define MEMP_NUM_TCPIP_MSG_API          16
 #define MEMP_NUM_TCPIP_MSG_INPKT        16
-#define MEMP_NUM_NETDB                  1
-#define MEMP_NUM_LOCALHOSTLIST          1
+#define MEMP_NUM_NETDB                  3
+#define MEMP_NUM_LOCALHOSTLIST          2
 #define PBUF_POOL_SIZE                  128
 //#define MEMP_NUM_API_MSG                MEMP_NUM_TCPIP_MSG_API
 //#define MEMP_NUM_DNS_API_MSG            MEMP_NUM_TCPIP_MSG_API
