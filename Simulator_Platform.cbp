@@ -34,8 +34,8 @@
 					<Add option="-e _entry" />
 					<Add option="-T RT-Thread\board\mingw.ld" />
 					<Add library="D:/soft_install/app_soft/CodeBlocks/MinGW/lib/libwinmm.a" />
-					<Add library="RT-Thread/board/pcap/Lib/Packet.lib" />
-					<Add library="RT-Thread/board/pcap/Lib/wpcap.lib" />
+					<Add library="RT-Thread/board/pcap/Lib/libpacket.a" />
+					<Add library="RT-Thread/board/pcap/Lib/libwpcap.a" />
 				</Linker>
 			</Target>
 			<Target title="Release">

@@ -310,9 +310,9 @@
 ** Thread options
 *********************************************************************************************************/
 #define TCPIP_THREAD_NAME              "tcpip"
-#define TCPIP_THREAD_STACKSIZE          4096
+#define TCPIP_THREAD_STACKSIZE          1024*8
 #define TCPIP_THREAD_PRIO               1
-#define TCPIP_MBOX_SIZE                 32
+#define TCPIP_MBOX_SIZE                 64
 #define LWIP_TCPIP_THREAD_ALIVE()
 #define SLIPIF_THREAD_NAME             "slipif"
 #define SLIPIF_THREAD_STACKSIZE         1024

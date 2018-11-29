@@ -257,7 +257,7 @@ extern "C" {
 /* ethernet if thread options */
 #define RT_LWIP_ETHTHREAD_PRIORITY		2
 #define RT_LWIP_ETHTHREAD_MBOX_SIZE		64
-#define RT_LWIP_ETHTHREAD_STACKSIZE		1024
+#define RT_LWIP_ETHTHREAD_STACKSIZE		1024*4
 
 /*********************************************************************************************************
 **  6LoWPANÖ§³Ö
