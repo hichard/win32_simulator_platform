@@ -1,25 +1,31 @@
-/****************************************Copyright (c)****************************************************
-**                             成 都 世 纪 华 宁 科 技 有 限 公 司
-**                                http://www.6lowpanworld.com
-**                                http://hichard.taobao.com
-**
-**
-**--------------File Info---------------------------------------------------------------------------------
-** File Name:           tap_netif.c
-** Last modified Date:  2018-09-19
-** Last Version:        v1.00
-** Description:         windows下的tap网卡驱动
-**--------------------------------------------------------------------------------------------------------
-** Created By:          Renhaibo
-** Created date:        2018-09-19
-** Version:             v1.00
-** Descriptions:
-**--------------------------------------------------------------------------------------------------------
-** Modified by:
-** Modified date:
-** Version:
-** Description:
-*********************************************************************************************************/
+/*
+ *  TAP-Win32 -- A kernel driver to provide virtual tap device functionality
+ *               on Windows.  Originally derived from the CIPE-Win32
+ *               project by Damion K. Wilson, with extensive modifications by
+ *               James Yonan.
+ *
+ *  All source code which derives from the CIPE-Win32 project is
+ *  Copyright (C) Damion K. Wilson, 2003, and is released under the
+ *  GPL version 2 (see below).
+ *
+ *  All other source code is Copyright (C) James Yonan, 2003-2004,
+ *  and is released under the GPL version 2 (see below).
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program (see the file COPYING included with this
+ *  distribution); if not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 #include <windows.h>
 #include <winioctl.h>
@@ -51,8 +57,9 @@
 // Registry keys
 //=================
 
-#define ADAPTER_KEY                 "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
-#define NETWORK_CONNECTIONS_KEY     "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
+#define ADAPTER_KEY "SYSTEM\\CurrentControlSet\\Control\\Class\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
+
+#define NETWORK_CONNECTIONS_KEY "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 
 //======================
 // Filesystem prefixes
@@ -507,7 +514,6 @@ static void tap_win32_thread_entry(void* param)
 	buffer = get_buffer_from_free_list(overlapped);
 
     for (;;) {
-        read_size = TUN_BUFFER_SIZE;
         result = ReadFile(overlapped->handle,
                           buffer->buffer,
                           sizeof(buffer->buffer),
@@ -654,15 +660,18 @@ static rt_err_t tap_netif_init(rt_device_t dev)
 
 	tap_netif_device.handle = handle;
 
+	#if 1
 	/* create recv thread */
 	CreateThread(NULL,0,tap_win32_thread_entry,NULL,0,0);
-	/*
+	#else
 	tid = rt_thread_create("tap", tap_win32_thread_entry, RT_NULL,
 		2048, RT_THREAD_PRIORITY_MAX - 1, 10);
 	if (tid != RT_NULL)
 	{
 		rt_thread_startup(tid);
-	}*/
+	}
+	#endif // 0
+	rt_thread_sleep(RT_TICK_PER_SECOND);
 
 	return RT_EOK;
 }
@@ -759,13 +768,6 @@ struct pbuf *tap_netif_rx(rt_device_t dev)
 	return p;
 }
 
-/*********************************************************************************************************
-** Function name:       tap_netif_hw_init
-** Descriptions:        tap网卡注册
-** input parameters:    NONE
-** output parameters:   NONE
-** Returned value:      NONE
-*********************************************************************************************************/
 void tap_netif_hw_init(void)
 {
 	rt_sem_init(&sem_lock, "eth_lock", 1, RT_IPC_FLAG_FIFO);
@@ -791,7 +793,3 @@ void tap_netif_hw_init(void)
 
 	eth_device_init(&(tap_netif_device.parent), "e0");
 }
-/*********************************************************************************************************
-END FILE
-*********************************************************************************************************/
-

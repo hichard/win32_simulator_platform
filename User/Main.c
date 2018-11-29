@@ -48,8 +48,8 @@ int main(void)
     /*
     ** Step 2, ÍøÂç³õÊ¼»¯
     */
-    //tap_netif_hw_init();
-    pcap_netif_hw_init();
+    tap_netif_hw_init();
+    //pcap_netif_hw_init();
 #if 1
     if_set_dhcp("e0", 1);
 #else
