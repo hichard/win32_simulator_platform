@@ -33,8 +33,8 @@
 #include <lwip_if.h>
 #include <lwip_ethernet.h>
 
-#define MAX_ADDR_LEN 6
-#define TAP_IFNAME	"RT-net"
+#define MAX_ADDR_LEN    6
+#define TAP_IFNAME	    "RT-net"
 
 //=============
 // TAP IOCTLs
@@ -74,7 +74,12 @@
 
 //#define DEBUG_TAP_WIN32
 
-#define TUN_ASYNCHRONOUS_WRITES 1
+/* FIXME: The asynch write path appears to be broken at
+ * present. WriteFile() ignores the lpNumberOfBytesWritten parameter
+ * for overlapped writes, with the result we return zero bytes sent,
+ * and after handling a single packet, receive is disabled for this
+ * interface. */
+/* #define TUN_ASYNCHRONOUS_WRITES 1 */
 
 #define TUN_BUFFER_SIZE         1560
 #define TUN_MAX_BUFFER_COUNT    32
@@ -121,8 +126,8 @@ struct tap_netif
 	/* interface address info. */
 	rt_uint8_t  dev_addr[MAX_ADDR_LEN];		/* hw address	*/
 };
-#define NETIF_DEVICE(netif) ((struct tap_netif*)(netif))
-#define NETIF_TAP(netif)   (NETIF_DEVICE(netif)->handle)
+#define NETIF_DEVICE(netif)     ((struct tap_netif*)(netif))
+#define NETIF_TAP(netif)        (NETIF_DEVICE(netif)->handle)
 
 static struct tap_netif tap_netif_device;
 static struct rt_semaphore sem_lock;
@@ -249,7 +254,7 @@ static int is_tap_win32_dev(const char *guid)
             return FALSE;
         }
 
-        rt_snprintf (unit_string, sizeof(unit_string), "%s\\%s",
+        snprintf (unit_string, sizeof(unit_string), "%s\\%s",
                   ADAPTER_KEY, enum_name);
 
         status = RegOpenKeyEx(
@@ -348,7 +353,7 @@ static int get_device_guid(
             return -1;
         }
 
-        rt_snprintf(connection_string,
+        snprintf(connection_string,
              sizeof(connection_string),
              "%s\\%s\\Connection",
              NETWORK_CONNECTIONS_KEY, enum_name);
@@ -371,11 +376,12 @@ static int get_device_guid(
                 &len);
 
             if (status != ERROR_SUCCESS || name_type != REG_SZ) {
-                    return -1;
+                ++i;
+                continue;
             }
             else {
                 if (is_tap_win32_dev(enum_name)) {
-                    rt_snprintf(name, name_size, "%s", enum_name);
+                    snprintf(name, name_size, "%s", enum_name);
                     if (actual_name) {
                         if (strcmp(actual_name, "") != 0) {
                             if (strcmp(name_data, actual_name) != 0) {
@@ -385,7 +391,7 @@ static int get_device_guid(
                             }
                         }
                         else {
-                            rt_snprintf(actual_name, actual_name_size, "%s", name_data);
+                            snprintf(actual_name, actual_name_size, "%s", name_data);
                         }
                     }
                     stop = 1;
@@ -475,32 +481,53 @@ static int tap_win32_write(tap_win32_overlapped_t *overlapped,
     BOOL result;
     DWORD error;
 
+#ifdef TUN_ASYNCHRONOUS_WRITES
     result = GetOverlappedResult( overlapped->handle, &overlapped->write_overlapped,
                                   &write_size, FALSE);
 
     if (!result && GetLastError() == ERROR_IO_INCOMPLETE)
         WaitForSingleObject(overlapped->write_event, INFINITE);
+#endif
 
     result = WriteFile(overlapped->handle, buffer, size,
                        &write_size, &overlapped->write_overlapped);
 
+#ifdef TUN_ASYNCHRONOUS_WRITES
+    /* FIXME: we can't sensibly set write_size here, without waiting
+     * for the IO to complete! Moreover, we can't return zero,
+     * because that will disable receive on this interface, and we
+     * also can't assume it will succeed and return the full size,
+     * because that will result in the buffer being reclaimed while
+     * the IO is in progress. */
+#error Async writes are broken. Please disable TUN_ASYNCHRONOUS_WRITES.
+#else /* !TUN_ASYNCHRONOUS_WRITES */
     if (!result) {
-        switch (error = GetLastError())
-        {
-        case ERROR_IO_PENDING:
-#ifndef TUN_ASYNCHRONOUS_WRITES
-            WaitForSingleObject(overlapped->write_event, INFINITE);
-#endif
-            break;
-        default:
-            return -1;
+        error = GetLastError();
+        if (error == ERROR_IO_PENDING) {
+            result = GetOverlappedResult(overlapped->handle,
+                                         &overlapped->write_overlapped,
+                                         &write_size, TRUE);
         }
+    }
+#endif
+
+    if (!result) {
+#ifdef DEBUG_TAP_WIN32
+        LPTSTR msgbuf;
+        error = GetLastError();
+        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                      NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                      &msgbuf, 0, NULL);
+        fprintf(stderr, "Tap-Win32: Error WriteFile %d - %s\n", error, msgbuf);
+        LocalFree(msgbuf);
+#endif
+        return 0;
     }
 
     return write_size;
 }
 
-static void tap_win32_thread_entry(void* param)
+static DWORD WINAPI tap_win32_thread_entry(LPVOID param)
 {
     tap_win32_overlapped_t *overlapped;
     unsigned long read_size;
@@ -549,21 +576,21 @@ static void tap_win32_thread_entry(void* param)
         }
 
         if(read_size > 0) {
-            //rt_kprintf("rx packet, length=%d\n", read_size);
-
-			buffer->read_size = read_size;
+            buffer->read_size = read_size;
             put_buffer_on_output_queue(overlapped, buffer);
-
+            ReleaseSemaphore(overlapped->tap_semaphore, 1, NULL);
 			/* notify eth rx thread to receive packet */
 			eth_device_ready(eth);
 
 			buffer = get_buffer_from_free_list(overlapped);
         }
     }
+
+    return 0;
 }
 
 static int tap_win32_read(tap_win32_overlapped_t *overlapped,
-                          rt_uint8_t **pbuf, int max_size)
+                          uint8_t **pbuf, int max_size)
 {
     int size = 0;
 
@@ -581,7 +608,7 @@ static int tap_win32_read(tap_win32_overlapped_t *overlapped,
 }
 
 static void tap_win32_free_buffer(tap_win32_overlapped_t *overlapped,
-                                  rt_uint8_t *pbuf)
+                                  uint8_t *pbuf)
 {
     tun_buffer_t* buffer = (tun_buffer_t*)pbuf;
     put_buffer_on_free_list(overlapped, buffer);
@@ -604,14 +631,14 @@ static int tap_win32_open(tap_win32_overlapped_t **phandle,
     DWORD version_len;
 
     if (preferred_name != NULL) {
-        rt_snprintf(name_buffer, sizeof(name_buffer), "%s", preferred_name);
+        snprintf(name_buffer, sizeof(name_buffer), "%s", preferred_name);
     }
 
     rc = get_device_guid(device_guid, sizeof(device_guid), name_buffer, sizeof(name_buffer));
     if (rc)
         return -1;
 
-    rt_snprintf (device_path, sizeof(device_path), "%s%s%s",
+    snprintf (device_path, sizeof(device_path), "%s%s%s",
               USERMODEDEVICEDIR,
               device_guid,
               TAPSUFFIX);
@@ -772,13 +799,13 @@ void tap_netif_hw_init(void)
 {
 	rt_sem_init(&sem_lock, "eth_lock", 1, RT_IPC_FLAG_FIFO);
 
-	tap_netif_device.dev_addr[0] = 0x00;
-	tap_netif_device.dev_addr[1] = 0xFF;
-	tap_netif_device.dev_addr[2] = 0x33;
+    tap_netif_device.dev_addr[0] = 0x00;
+	tap_netif_device.dev_addr[1] = 0x60;
+	tap_netif_device.dev_addr[2] = 0x37;
 	/* set mac address: (only for test) */
-	tap_netif_device.dev_addr[3] = 0x39;
-	tap_netif_device.dev_addr[4] = 0x55;
-	tap_netif_device.dev_addr[5] = 0x82;
+	tap_netif_device.dev_addr[3] = 0x12;
+	tap_netif_device.dev_addr[4] = 0x34;
+	tap_netif_device.dev_addr[5] = 0x56;
 
 	tap_netif_device.parent.parent.init		= tap_netif_init;
 	tap_netif_device.parent.parent.open		= tap_netif_open;
