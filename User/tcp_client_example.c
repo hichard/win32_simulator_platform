@@ -28,8 +28,8 @@
 /*********************************************************************************************************
 ** »´æ÷≈‰÷√
 *********************************************************************************************************/
-#define TCP_SERVER_ADDRESS    "192.168.100.13"
-#define TCP_SERVER_PORT       "6000"
+#define TCP_SERVER_ADDRESS    "192.168.3.143"
+#define TCP_SERVER_PORT       "65001"
 
 /*********************************************************************************************************
 ** Function name:       tcp_app_thread
@@ -133,6 +133,8 @@ void tcp_app_thread(void *parg)
             {
                 rt_kprintf("received error,close the socket.\r\n");
                 break;
+            } else {
+                rt_kprintf("received error , error code is %d\r\n", errno);
             }
         }
 
@@ -154,6 +156,8 @@ void tcp_app_thread(void *parg)
                     break;
                 }
             }
+        } else {
+            rt_kprintf("received length is %d , error code is %d\r\n", recv_len, errno);
         }
     }
     closesocket(sockfd);
@@ -164,11 +168,11 @@ void tcp_app_thread(void *parg)
 #include <finsh.h>
 int cmd_tcp_test(int argc, char **argv)
 {
-    rt_device_t tid;
+    rt_thread_t tid;
 
     if (argc == 1)
     {
-        tid = rt_thread_create("tcp", tcp_app_thread, RT_NULL, 2048, 10, 20);
+        tid = rt_thread_create("tcp", tcp_app_thread, RT_NULL, 4096, 10, 20);
         if (tid != RT_NULL) {
             rt_thread_startup(tid);
             rt_kprintf("create tcp test thread ok!\r\n");
